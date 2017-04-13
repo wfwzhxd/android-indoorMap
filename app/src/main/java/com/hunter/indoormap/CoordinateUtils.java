@@ -1,0 +1,60 @@
+package com.hunter.indoormap;
+
+
+import com.hunter.indoormap.beans.Point;
+
+/**
+ * Created by hunter on 4/2/17.
+ */
+
+public class CoordinateUtils {
+
+    public static Point relativeCoord(Point origin, Point point) {
+        return new Point(point.x - origin.x, point.y - origin.y);
+    }
+
+    public static Point absoluteCoord(Point origin, Point point) {
+        return new Point(point.x + origin.x, point.y + origin.y);
+    }
+
+    public static Point rotateAtPoint(Point center, Point point, float degree, Point reuse) {
+        float distance = calDistance(center, point);
+        float oriDrgree = calDegree(center, point);
+        float desDegree = (oriDrgree + degree)%360;
+        if (desDegree<0) {
+            desDegree += 360;
+        }
+        System.out.println(degree + " " + oriDrgree + " " + desDegree);
+        double radians = degree2radians(desDegree);
+        int x = (int) Math.round(center.x + Math.cos(radians) * distance);
+        int y = (int) Math.round(center.y + Math.sin(radians) * distance);
+        if (reuse != null) {
+            //TODO
+//            reuse.set(x, y);
+            return reuse;
+        }
+        return new Point(x, y);
+    }
+
+    public static float calDistance(Point start, Point end) {
+        return (float) Math.sqrt(Math.pow(end.x-start.x, 2) + Math.pow(end.y-start.y, 2));
+    }
+
+    public static float calDegree(Point start, Point end) {
+        Point relPoint = relativeCoord(start, end);
+        double degree = radians2degree(Math.atan2(relPoint.y, relPoint.x));
+        return (float) (degree < 0 ? 360+degree : degree);
+    }
+
+    public static Point pointOffset(Point point, int dx, int dy) {
+        return new Point(point.x + dx, point.y + dy);
+    }
+
+    public static double degree2radians(float degree) {
+        return degree*(2*Math.PI)/360;
+    }
+
+    public static float radians2degree(double radians) {
+        return (float) (radians/(2*Math.PI)*360);
+    }
+}
