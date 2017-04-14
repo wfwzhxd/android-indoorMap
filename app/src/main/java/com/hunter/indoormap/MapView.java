@@ -2,189 +2,142 @@ package com.hunter.indoormap;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.Point;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
-import android.view.View;
+import android.widget.RelativeLayout;
 
-import com.hunter.indoormap.beans.FloorMap;
-import com.hunter.indoormap.beans.Node;
-import com.hunter.indoormap.beans.Way;
-
-import java.util.LinkedList;
 import java.util.List;
 
-public class MapView extends View implements View.OnTouchListener {
-    private static final String TAG = MapView.class.getSimpleName();
+public class MapView extends RelativeLayout {
+    public static final String LOGTAG = MapView.class.getSimpleName();
 
-    GestureDetector mGestureDetector;
-    ScaleGestureDetector mScaleGestureDetector;
-
-    Paint wayPaint;
-    Paint nodePaint;
-    Paint namePaint;
-
-    private int scale = 8;
-
-    List<Way> ways = new LinkedList<>();
-    List<Node> nodes = new LinkedList<>();
-
-    FloorMap floorMap;
+    private final GestureDetector mGestureDetector;
+    private OverlayManager mOverlayManager;
 
     public MapView(Context context) {
-        super(context);
-        init(context);
+        this(context, null);
     }
 
     public MapView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init(context);
+        this(context, attrs, 0);
     }
 
     public MapView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init(context);
+        mOverlayManager = new DefaultOverlayManager();
+        mGestureDetector = new GestureDetector(context, new MapViewGestureDetectorListener());
+        mGestureDetector.setOnDoubleTapListener(new MapViewDoubleClickListener());
     }
-
-    private void init(Context context) {
-        wayPaint = new Paint();
-        wayPaint.setColor(Color.BLACK);
-
-        nodePaint = new Paint();
-        nodePaint.setColor(Color.RED);
-
-        namePaint = new Paint();
-        namePaint.setColor(Color.BLUE);
-
-        setOnTouchListener(this);
-        mGestureDetector = new GestureDetector(context, new MapViewGestureDetector());
-        mScaleGestureDetector = new ScaleGestureDetector(context, new MapViewScaleGestureDetector());
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        /*
-        canvas.drawColor(Color.GRAY);
-        if (floorMap != null) {
-            Point[] points = floorMap.getBounds().getShape().getPoints();
-            if (points.length > 1){
-                Path path = new Path();
-                path.moveTo(o2s(points[0].x), o2s(points[0].y));
-                for (int i=1;i<points.length;i++) {
-                    path.lineTo(o2s(points[i].x), o2s(points[i].y));
-                }
-                path.close();
-                Paint floorPaint = new Paint();
-                floorPaint.setColor(Color.WHITE);
-                floorPaint.setStyle(Paint.Style.FILL);
-                canvas.drawPath(path, floorPaint);
-            }
-        }
-        drawWay(canvas);
-        drawNode(canvas);
-        */
-    }
-
-
-    private void drawNode(Canvas canvas) {
-        for (Node node:nodes){
-            float left = o2s(node.getXyz().x);
-            float top = o2s(node.getXyz().y);
-            canvas.drawRect(left, top, left+scale, top+scale, nodePaint);
-        }
-    }
-
-    private void drawWay(Canvas canvas) {
-        wayPaint.setStrokeWidth(scale);
-        for (Way way:ways) {
-            if(way.getNodes().length>1) {
-                for (int i=0; i<way.getNodes().length-1; i++) {
-                    canvas.drawLine(o2s(way.getNodes()[i].getXyz().x), o2s(way.getNodes()[i].getXyz().y), o2s(way.getNodes()[i+1].getXyz().x), o2s(way.getNodes()[i+1].getXyz().y), wayPaint);
-                }
-            }
-        }
-    }
-
 
     /**
-     * original xy to scaled xy
-     * @param x
-     * @return
+     * You can add/remove/reorder your Overlays using the List of {@link Overlay}. The first (index
+     * 0) Overlay gets drawn first, the one with the highest as the last one.
      */
-    int o2s(int x){
-        return x*scale;
+    public List<Overlay> getOverlays() {
+        return this.getOverlayManager().overlays();
     }
 
-    int s2o(int x){
-        return x/scale;
+    public OverlayManager getOverlayManager() {
+        return mOverlayManager;
     }
 
-    public void addNode(Node node){
-        nodes.add(node);
-        invalidate();
-    }
-
-    public void addWay(Way way){
-        ways.add(way);
-        invalidate();
-    }
-
-    public int getScale() {
-        return scale;
-    }
-
-    public void setScale(int scale) {
-        this.scale = scale;
-        invalidate();
-    }
-
-    public FloorMap getFloorMap() {
-        return floorMap;
-    }
-
-    public void setFloorMap(FloorMap floorMap) {
-        this.floorMap = floorMap;
-        invalidate();
+    public void setOverlayManager(final OverlayManager overlayManager) {
+        mOverlayManager = overlayManager;
     }
 
     @Override
-    public boolean onTouch(View view, MotionEvent motionEvent) {
-        if (mGestureDetector.onTouchEvent(motionEvent)){}else {
-            mScaleGestureDetector.onTouchEvent(motionEvent);
-        }
-        switch (motionEvent.getAction()){
-            case MotionEvent.ACTION_DOWN:
-                int x = (int) motionEvent.getX() + getScrollX();
-                int y = (int) motionEvent.getY() + getScrollY();
-                Log.i(TAG, "view: " + x + ":" + y + " ； original: " + s2o(x) + ":" + s2o(y));
-        }
-        return true;
+    protected void dispatchDraw(final Canvas c) {
+        // Save the current canvas matrix
+        c.save();
+		/* Draw all Overlays. */
+        this.getOverlayManager().onDraw(c, this);
+        // Restore the canvas matrix
+        c.restore();
+        super.dispatchDraw(c);
     }
 
-    class MapViewGestureDetector extends GestureDetector.SimpleOnGestureListener {
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            MapView.this.scrollBy((int)distanceX, (int)distanceY);
+    @Override
+    public boolean dispatchTouchEvent(final MotionEvent event) {
+
+        if (super.dispatchTouchEvent(event)) {
+            Log.d(MapView.LOGTAG,"super handled onTouchEvent");
             return true;
         }
+
+        if (this.getOverlayManager().onTouchEvent(event, this)) {
+            return true;
+        }
+
+        if (mGestureDetector.onTouchEvent(event)) {
+            Log.d(MapView.LOGTAG,"mGestureDetector handled onTouchEvent");
+            return true;
+        }
+        return false;
     }
 
-    class MapViewScaleGestureDetector extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+    private class MapViewGestureDetectorListener implements GestureDetector.OnGestureListener {
+
         @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-            int newScale = (int) (scale*detector.getScaleFactor());
-            if (newScale != scale) {
-                setScale(newScale);
+        public boolean onDown(final MotionEvent e) {
+            return MapView.this.getOverlayManager().onDown(e, MapView.this);
+        }
+
+        @Override
+        public boolean onFling(final MotionEvent e1, final MotionEvent e2,
+                               final float velocityX, final float velocityY) {
+            return MapView.this.getOverlayManager().onFling(e1, e2, velocityX, velocityY, MapView.this);
+        }
+
+        @Override
+        public void onLongPress(final MotionEvent e) {
+            MapView.this.getOverlayManager().onLongPress(e, MapView.this);
+        }
+
+        @Override
+        public boolean onScroll(final MotionEvent e1, final MotionEvent e2, final float distanceX,
+                                final float distanceY) {
+            if (MapView.this.getOverlayManager().onScroll(e1, e2, distanceX, distanceY,
+                    MapView.this)) {
                 return true;
             }
+
+            scrollBy((int) distanceX, (int) distanceY);
+            return true;
+        }
+
+        @Override
+        public void onShowPress(final MotionEvent e) {
+            MapView.this.getOverlayManager().onShowPress(e, MapView.this);
+        }
+
+        @Override
+        public boolean onSingleTapUp(final MotionEvent e) {
+            if (MapView.this.getOverlayManager().onSingleTapUp(e, MapView.this)) {
+                return true;
+            }
+
             return false;
         }
+
     }
+
+    private class MapViewDoubleClickListener implements GestureDetector.OnDoubleTapListener {
+        @Override
+        public boolean onDoubleTap(final MotionEvent e) {
+            return MapView.this.getOverlayManager().onDoubleTap(e, MapView.this);
+        }
+
+        @Override
+        public boolean onDoubleTapEvent(final MotionEvent e) {
+            return MapView.this.getOverlayManager().onDoubleTapEvent(e, MapView.this);
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(final MotionEvent e) {
+            return MapView.this.getOverlayManager().onSingleTapConfirmed(e, MapView.this);
+        }
+    }
+
 }

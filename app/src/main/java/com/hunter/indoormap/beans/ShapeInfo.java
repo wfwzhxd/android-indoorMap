@@ -3,6 +3,7 @@ package com.hunter.indoormap.beans;
 import com.hunter.indoormap.CoordinateUtils;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Created by hunter on 3/25/17.
@@ -16,7 +17,7 @@ public class ShapeInfo {
 
         public Shape(int id, Point[] points) {
             super(id, null);
-            this.points = points;
+            setPoints(points);
         }
 
         public Point[] getPoints() {
@@ -25,6 +26,7 @@ public class ShapeInfo {
 
         public void setPoints(Point[] points) {
             this.points = points;
+            bounds = null;
         }
 
         @Override
@@ -97,14 +99,23 @@ public class ShapeInfo {
 
     private Shape shape;
     private float shapeDegree;
+    Rect bounds;
 
     public ShapeInfo(Shape shape) {
-        this.shape = shape;
+        set(shape, shapeDegree);
     }
 
     public ShapeInfo(Shape shape, float shapeDegree) {
+        set(shape, shapeDegree);
+    }
+
+    private ShapeInfo set(Shape shape, float shapeDegree) {
+        if (shapeDegree != this.shapeDegree || (shape==null || shape != this.shape)) {
+            bounds = null;
+        }
         this.shape = shape;
         this.shapeDegree = shapeDegree;
+        return this;
     }
 
     public Shape getShape() {
@@ -112,7 +123,7 @@ public class ShapeInfo {
     }
 
     public void setShape(Shape shape) {
-        this.shape = shape;
+        set(shape, shapeDegree);
     }
 
     public float getShapeDegree() {
@@ -120,11 +131,22 @@ public class ShapeInfo {
     }
 
     public void setShapeDegree(float shapeDegree) {
-        this.shapeDegree = shapeDegree;
+        set(shape, shapeDegree);
     }
 
     public boolean contains(Point testPoint) {
-        return shape.contains(CoordinateUtils.rotateAtPoint(Point.ORIGIN, testPoint, -shapeDegree, null));
+        return shape.contains(CoordinateUtils.rotateAtPoint(Point.ORIGIN, testPoint, -shapeDegree, false));
+    }
+
+    public Rect getBounds() {
+        if (bounds == null) {
+            calculateBounds();
+        }
+        return bounds;
+    }
+
+    protected void calculateBounds() {
+        bounds = new Shape(-1, CoordinateUtils.rotateAtPoint(Point.ORIGIN, shape.points, shapeDegree, false)).getBounds();
     }
 
     @Override

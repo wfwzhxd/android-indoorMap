@@ -2,43 +2,53 @@ package com.hunter.indoormap.beans;
 
 import com.hunter.indoormap.CoordinateUtils;
 
-import java.util.Arrays;
-
 /**
  * Created by hunter on 3/25/17.
  */
 
 public class Way extends MObj {
-    /**
-     *  道路中用到的 Node 中的 Shape 使用一种特殊的 Shape, 此 Shape 中
-     *  只有两个 Node ， 两个 Node 之间的距离代表道路中当前 Node 的宽度。
-     */
-    Node[] nodes;
+
+    public static class WayNode extends GPoint{
+        float wide;
+
+        public WayNode(int x, int y, float wide) {
+            this(x, y, 0, wide);
+        }
+
+        public WayNode(int x, int y, int z, float wide) {
+            super(x, y, z);
+            this.wide = wide;
+        }
+    }
+
+    WayNode[] wayNodes;
+
+
     boolean oneway = false;
 
     private ShapeInfo[] shapeInfos;
 
-    public Way(int id, Node[] nodes) {
-        this(id, null, nodes, false);
+    public Way(int id, WayNode[] wayNodes) {
+        this(id, null, wayNodes);
     }
 
-    public Way(int id, String name, Node[] nodes) {
-        this(id, name, nodes, false);
+    public Way(int id, String name, WayNode[] wayNodes) {
+        this(id, name, wayNodes, false);
     }
 
-    public Way(int id, String name, Node[] nodes, boolean oneway) {
+    public Way(int id, String name, WayNode[] wayNodes, boolean oneway) {
         super(id, name);
-        setNodes(nodes);
+        setWayNodes(wayNodes);
         this.oneway = oneway;
     }
 
-    public Node[] getNodes() {
-        return nodes;
+    public WayNode[] getWayNodes() {
+        return wayNodes;
     }
 
-    public void setNodes(Node[] nodes) {
-        this.nodes = nodes;
-        shapeInfos = new ShapeInfo[nodes.length>0?nodes.length-1:nodes.length];
+    public void setWayNodes(WayNode[] wayNodes) {
+        this.wayNodes = wayNodes;
+        shapeInfos = new ShapeInfo[wayNodes.length>0?wayNodes.length-1:wayNodes.length];
         bounds = null;
     }
 
@@ -52,15 +62,15 @@ public class Way extends MObj {
 
     private ShapeInfo getShapeInfo(int i) {
         if (shapeInfos[i] == null) {
-            shapeInfos[i] = calculateShapeInfo(nodes[i], nodes[i+1]);
+            shapeInfos[i] = calculateShapeInfo(wayNodes[i], wayNodes[i+1]);
         }
         return shapeInfos[i];
     }
 
     @Override
     public boolean contains(Point point) {
-        for (int i=0; i < nodes.length-1; i++) {
-            point = CoordinateUtils.relativeCoord(nodes[i].xyz, point);
+        for (int i=0; i < wayNodes.length-1; i++) {
+            point = CoordinateUtils.relativeCoord(wayNodes[i], point);
             if (getShapeInfo(i).contains(point)) {
                 return true;
             }
@@ -68,16 +78,15 @@ public class Way extends MObj {
         return false;
     }
 
-    private ShapeInfo calculateShapeInfo(Node start, Node end) {
-        float degree = CoordinateUtils.calDegree(start.getXyz(), end.getXyz());
+    private ShapeInfo calculateShapeInfo(WayNode start, WayNode end) {
+        float degree = CoordinateUtils.calDegree(start, end);
         System.out.println(start + " " + end + " degree " + degree);
-        Point startPoint = start.getXyz();
-        Point endPoint = CoordinateUtils.rotateAtPoint(startPoint, end.getXyz(), -degree, null);
-        endPoint = CoordinateUtils.relativeCoord(start.getXyz(), endPoint);
-        int startHalfWidth = Math.round(CoordinateUtils.calDistance(start.shapeInfo.getShape().points[0],start.shapeInfo.getShape().points[1])/2);
+        Point endPoint = CoordinateUtils.rotateAtPoint(start, end, -degree, false);
+        endPoint = CoordinateUtils.relativeCoord(start, endPoint);
+        int startHalfWidth = Math.round(start.wide/2);
         Point spt = CoordinateUtils.pointOffset(Point.ORIGIN, 0, startHalfWidth);
         Point spb = CoordinateUtils.pointOffset(Point.ORIGIN, 0, -startHalfWidth);
-        int endHalfWidth = Math.round(CoordinateUtils.calDistance(end.shapeInfo.getShape().points[0],end.shapeInfo.getShape().points[1])/2);
+        int endHalfWidth = Math.round(end.wide/2);
         Point ept = CoordinateUtils.pointOffset(endPoint, 0, endHalfWidth);
         Point epb = CoordinateUtils.pointOffset(endPoint, 0, -endHalfWidth);
         Point[] points = new Point[]{spt, spb, epb, ept};
@@ -93,13 +102,13 @@ public class Way extends MObj {
         int boundsMaxX = Integer.MIN_VALUE;
         int boundsMaxY = Integer.MIN_VALUE;
         /* 粗略计算 */
-        for (int i = 0; i < nodes.length; i++) {
-            int halfRound = Math.round(CoordinateUtils.calDistance(nodes[i].shapeInfo.getShape().points[0],nodes[i].shapeInfo.getShape().points[1])/2);
+        for (int i = 0; i < wayNodes.length; i++) {
+            int halfRound = Math.round(wayNodes[i].wide/2);
             System.out.println(i + " halfRound: " + halfRound);
-            boundsMinX = Math.min(boundsMinX, nodes[i].xyz.x-halfRound);
-            boundsMaxX = Math.max(boundsMaxX, nodes[i].xyz.x+halfRound);
-            boundsMinY = Math.min(boundsMinY, nodes[i].xyz.y-halfRound);
-            boundsMaxY = Math.max(boundsMaxY, nodes[i].xyz.y+halfRound);
+            boundsMinX = Math.min(boundsMinX, wayNodes[i].x-halfRound);
+            boundsMaxX = Math.max(boundsMaxX, wayNodes[i].x+halfRound);
+            boundsMinY = Math.min(boundsMinY, wayNodes[i].y-halfRound);
+            boundsMaxY = Math.max(boundsMaxY, wayNodes[i].y+halfRound);
             System.out.println(boundsMinX + " " + boundsMaxX + " " + boundsMinY + " " + boundsMaxY);
         }
         bounds = new Rect(boundsMinX, boundsMinY, boundsMaxX, boundsMaxY);

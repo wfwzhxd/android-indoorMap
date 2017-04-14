@@ -47,7 +47,7 @@ public class Node extends MObj {
 
     @Override
     protected void calculateBounds() {
-        bounds = new Rect(xyz.x, xyz.y, xyz.x, xyz.y);
+        bounds = new Rect(shapeInfo.getBounds()).offset(xyz.x, xyz.y);
     }
 
     @Override

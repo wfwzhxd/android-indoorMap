@@ -31,7 +31,7 @@ public abstract class MObj {
      * The bounding box is the smallest {@link Rect} whose
      * sides are parallel to the x and y axes of the
      * coordinate space, and can completely contain the <code>MObj</code>.
-     * @return a <code>Rect</code> that defines the bounds of this
+     * @return a <code>Rect</code> that defines the bound of this
      * <code>MObj</code>.
      */
     public Rect getBounds() {
@@ -41,5 +41,5 @@ public abstract class MObj {
         return bounds;
     }
 
-    protected abstract void calculateBounds();
+    protected void calculateBounds() {}
 }

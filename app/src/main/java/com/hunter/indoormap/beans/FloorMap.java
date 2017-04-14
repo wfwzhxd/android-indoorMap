@@ -5,13 +5,14 @@ package com.hunter.indoormap.beans;
  * Created by hunter on 3/25/17.
  */
 
-public class FloorMap {
+public class FloorMap extends MObj{
     int z;
-    ShapeInfo bounds;
+    ShapeInfo edge;
 
-    public FloorMap(int z, ShapeInfo bounds) {
+    public FloorMap(int z, ShapeInfo edge) {
+        super(-1, null);
         this.z = z;
-        this.bounds = bounds;
+        this.edge = edge;
     }
 
     public int getZ() {
@@ -22,15 +23,21 @@ public class FloorMap {
         this.z = z;
     }
 
-    public ShapeInfo getBounds() {
-        return bounds;
+    public ShapeInfo getEdge() {
+        return edge;
     }
 
-    public void setBounds(ShapeInfo bounds) {
-        this.bounds = bounds;
+    public void setEdge(ShapeInfo edge) {
+        this.edge = edge;
     }
 
-    boolean contains(Point point){
-        return bounds.contains(point);
+    @Override
+    public boolean contains(Point point){
+        return edge.contains(point);
+    }
+
+    @Override
+    public Rect getBounds() {
+        return edge.getBounds();
     }
 }

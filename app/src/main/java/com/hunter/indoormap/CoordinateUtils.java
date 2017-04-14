@@ -13,11 +13,15 @@ public class CoordinateUtils {
         return new Point(point.x - origin.x, point.y - origin.y);
     }
 
+    public static Point[] relativeCoord(Point origin, Point[] points) {
+        return pointOffset(points, -origin.x, -origin.y);
+    }
+
     public static Point absoluteCoord(Point origin, Point point) {
         return new Point(point.x + origin.x, point.y + origin.y);
     }
 
-    public static Point rotateAtPoint(Point center, Point point, float degree, Point reuse) {
+    public static Point rotateAtPoint(Point center, Point point, float degree, boolean reuse) {
         float distance = calDistance(center, point);
         float oriDrgree = calDegree(center, point);
         float desDegree = (oriDrgree + degree)%360;
@@ -28,12 +32,15 @@ public class CoordinateUtils {
         double radians = degree2radians(desDegree);
         int x = (int) Math.round(center.x + Math.cos(radians) * distance);
         int y = (int) Math.round(center.y + Math.sin(radians) * distance);
-        if (reuse != null) {
-            //TODO
-//            reuse.set(x, y);
-            return reuse;
+        return reuse ? point.set(x, y) : new Point(x, y);
+    }
+
+    public static Point[] rotateAtPoint(Point center, Point[] points, float degree, boolean reuse) {
+        Point[] newPoints = reuse ? points : new Point[points.length];
+        for (int i=0; i<points.length; i++) {
+            newPoints[i] = rotateAtPoint(center, points[i], degree, reuse);
         }
-        return new Point(x, y);
+        return newPoints;
     }
 
     public static float calDistance(Point start, Point end) {
@@ -48,6 +55,14 @@ public class CoordinateUtils {
 
     public static Point pointOffset(Point point, int dx, int dy) {
         return new Point(point.x + dx, point.y + dy);
+    }
+
+    public static Point[] pointOffset(Point[] points, int dx, int dy) {
+        Point[] newPoints = new Point[points.length];
+        for (int i=0; i<points.length; i++) {
+            newPoints[i] = pointOffset(points[i], dx, dy);
+        }
+        return newPoints;
     }
 
     public static double degree2radians(float degree) {

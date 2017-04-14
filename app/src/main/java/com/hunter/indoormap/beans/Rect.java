@@ -84,7 +84,7 @@ public final class Rect implements Parcelable {
      * @param r The rectangle whose coordinates are copied into the new
      *          rectangle.
      */
-    public Rect(android.graphics.Rect r) {
+    public Rect(Rect r) {
         if (r == null) {
             left = top = right = bottom = 0;
         } else {
@@ -287,11 +287,12 @@ public final class Rect implements Parcelable {
      * @param dx The amount to add to the rectangle's left and right coordinates
      * @param dy The amount to add to the rectangle's top and bottom coordinates
      */
-    public void offset(int dx, int dy) {
+    public Rect offset(int dx, int dy) {
         left += dx;
         top += dy;
         right += dx;
         bottom += dy;
+        return this;
     }
 
     /**
