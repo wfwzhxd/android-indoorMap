@@ -7,16 +7,45 @@ package com.hunter.indoormap.beans;
 public abstract class MObj {
     int id;
     String name;
-    boolean show = true;
-    Rect bounds;
+    boolean show;
+    transient Rect bounds;
 
     public MObj(int id) {
-        this.id = id;
+        this(id, null);
     }
 
     public MObj(int id, String name) {
+        this(id, name, true);
+    }
+
+    public MObj(int id, String name, boolean show) {
         this.id = id;
         this.name = name;
+        this.show = show;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isShow() {
+        return show;
+    }
+
+    public void setShow(boolean show) {
+        this.show = show;
     }
 
     /**
@@ -42,4 +71,12 @@ public abstract class MObj {
     }
 
     protected void calculateBounds() {}
+
+    public boolean equals(Object obj) {
+        if (obj == null || !(obj instanceof MObj)) {
+            return false;
+        }
+        MObj obj2 = (MObj) obj;
+        return id == obj2.id;
+    }
 }

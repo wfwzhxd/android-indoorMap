@@ -9,8 +9,8 @@ public class FloorMap extends MObj{
     int z;
     ShapeInfo edge;
 
-    public FloorMap(int z, ShapeInfo edge) {
-        super(-1, null);
+    public FloorMap(int id, String name, int z, ShapeInfo edge) {
+        super(id, name);
         this.z = z;
         this.edge = edge;
     }
@@ -39,5 +39,14 @@ public class FloorMap extends MObj{
     @Override
     public Rect getBounds() {
         return edge.getBounds();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || !(obj instanceof FloorMap)) {
+            return false;
+        }
+        FloorMap obj2 = (FloorMap) obj;
+        return z == obj2.z;
     }
 }

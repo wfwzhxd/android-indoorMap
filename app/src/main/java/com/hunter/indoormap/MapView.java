@@ -8,6 +8,8 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.RelativeLayout;
 
+import com.hunter.indoormap.data.DataSource;
+
 import java.util.List;
 
 public class MapView extends RelativeLayout {
@@ -15,6 +17,9 @@ public class MapView extends RelativeLayout {
 
     private final GestureDetector mGestureDetector;
     private OverlayManager mOverlayManager;
+
+    private DataSource mDataSource;
+    private int floor;
 
     public MapView(Context context) {
         this(context, null);
@@ -45,6 +50,22 @@ public class MapView extends RelativeLayout {
 
     public void setOverlayManager(final OverlayManager overlayManager) {
         mOverlayManager = overlayManager;
+    }
+
+    public DataSource getmDataSource() {
+        return mDataSource;
+    }
+
+    public void setmDataSource(DataSource mDataSource) {
+        this.mDataSource = mDataSource;
+    }
+
+    public int getFloor() {
+        return floor;
+    }
+
+    public void setFloor(int floor) {
+        this.floor = floor;
     }
 
     @Override

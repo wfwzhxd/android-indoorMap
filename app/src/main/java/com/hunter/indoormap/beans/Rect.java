@@ -499,7 +499,7 @@ public final class Rect implements Parcelable {
      * @return true iff the two specified rectangles intersect. In no event are
      *              either of the rectangles modified.
      */
-    public static boolean intersects(android.graphics.Rect a, android.graphics.Rect b) {
+    public static boolean intersects(Rect a, Rect b) {
         return a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
     }
 

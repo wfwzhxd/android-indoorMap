@@ -26,18 +26,18 @@ public class Way extends MObj {
 
     boolean oneway = false;
 
-    private ShapeInfo[] shapeInfos;
+    private transient ShapeInfo[] shapeInfos;
 
     public Way(int id, WayNode[] wayNodes) {
         this(id, null, wayNodes);
     }
 
     public Way(int id, String name, WayNode[] wayNodes) {
-        this(id, name, wayNodes, false);
+        this(id, name, true, wayNodes, false);
     }
 
-    public Way(int id, String name, WayNode[] wayNodes, boolean oneway) {
-        super(id, name);
+    public Way(int id, String name, boolean show, WayNode[] wayNodes, boolean oneway) {
+        super(id, name, show);
         setWayNodes(wayNodes);
         this.oneway = oneway;
     }

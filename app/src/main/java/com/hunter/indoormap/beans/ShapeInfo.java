@@ -11,12 +11,14 @@ import java.util.Objects;
 
 public class ShapeInfo {
 
-    public static class Shape extends MObj{
+    public static class Shape {
 
+        int id;
         Point[] points;
+        transient Rect bounds;
 
         public Shape(int id, Point[] points) {
-            super(id, null);
+            this.id = id;
             setPoints(points);
         }
 
@@ -29,7 +31,21 @@ public class ShapeInfo {
             bounds = null;
         }
 
-        @Override
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public Rect getBounds() {
+            if (bounds == null) {
+                calculateBounds();
+            }
+            return bounds;
+        }
+
         protected void calculateBounds() {
             int boundsMinX = Integer.MAX_VALUE;
             int boundsMinY = Integer.MAX_VALUE;
