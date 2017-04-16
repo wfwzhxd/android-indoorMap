@@ -49,4 +49,15 @@ public class FloorMap extends MObj{
         FloorMap obj2 = (FloorMap) obj;
         return z == obj2.z;
     }
+
+    @Override
+    public String toString() {
+        return "FloorMap{" +
+                "id=" + id +
+                ", name=" + name +
+                ", show=" + show +
+                ", z=" + z +
+                ", edge=" + edge +
+                '}';
+    }
 }

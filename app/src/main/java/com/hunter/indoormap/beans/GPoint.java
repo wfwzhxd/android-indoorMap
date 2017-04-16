@@ -30,9 +30,24 @@ public class GPoint extends Point{
         this(src.x, src.y, src.z);
     }
 
-    public void set(int x, int y, int z) {
-        this.x = x;
-        this.y = y;
+    public void setZ(int z) {
         this.z = z;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (super.equals(obj) && obj instanceof GPoint) {
+            return z == ((GPoint) obj).z;
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return "GPoint{" +
+                "x=" + x +
+                ", y=" + y +
+                ", z=" + z +
+                '}';
     }
 }

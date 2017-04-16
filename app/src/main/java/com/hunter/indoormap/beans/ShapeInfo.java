@@ -106,9 +106,19 @@ public class ShapeInfo {
         }
 
         @Override
+        public boolean equals(Object obj) {
+            if (obj == null || !(obj instanceof Shape)) {
+                return false;
+            }
+            Shape obj2 = (Shape) obj;
+            return obj2.id == id && Arrays.equals(obj2.points, points);
+        }
+
+        @Override
         public String toString() {
             return "Shape{" +
-                    "points=" + Arrays.toString(points) +
+                    "id=" + id +
+                    ", points=" + Arrays.toString(points) +
                     '}';
         }
     }

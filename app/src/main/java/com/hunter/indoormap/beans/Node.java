@@ -53,7 +53,10 @@ public class Node extends MObj {
     @Override
     public String toString() {
         return "Node{" +
-                "xyz=" + xyz +
+                "id=" + id +
+                ", name=" + name +
+                ", show=" + show +
+                ", xyz=" + xyz +
                 ", shapeInfo=" + shapeInfo +
                 '}';
     }

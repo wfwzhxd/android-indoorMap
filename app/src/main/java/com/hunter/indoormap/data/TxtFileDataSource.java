@@ -1,6 +1,6 @@
 package com.hunter.indoormap.data;
 
-import android.util.Log;
+import com.hunter.indoormap.Log;
 
 import com.hunter.indoormap.beans.FloorMap;
 import com.hunter.indoormap.beans.GPoint;
@@ -20,8 +20,12 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * Created by hunter on 4/15/17.
@@ -47,7 +51,7 @@ public class TxtFileDataSource extends FileDataSource {
 
     public static final String IGNORE_PREFIX = "#";
 
-    public static final String ONE_LEVEL_SEPARATOR = "|";
+    public static final String ONE_LEVEL_SEPARATOR = "\\|";
 
     public static final String TWO_LEVEL_SEPARATOR = ";";
 
@@ -55,6 +59,9 @@ public class TxtFileDataSource extends FileDataSource {
 
 
     private File dataDir;
+
+    private Set idSet;
+    private NBitSet zSet;
 
     public TxtFileDataSource(File dataDir) {
         if (dataDir == null || !dataDir.isDirectory()) {
@@ -66,7 +73,16 @@ public class TxtFileDataSource extends FileDataSource {
 
     @Override
     protected boolean actualLoadData() {
-        return loadShapes() && loadFloors() && loadWays() && loadNodes();
+        idSet = new LinkedHashSet();
+        zSet = new NBitSet();
+        boolean result =  loadShapes() && loadFloors() && loadWays() && loadNodes();
+        Log.o("\nshapes :\n" + shapes.toString());
+        Log.o("\nfloorMaps :\n" + floorMaps.toString());
+        Log.o("\nnodes :\n" + nodes.toString());
+        Log.o("\nways :\n" + ways.toString());
+        idSet = null;
+        zSet = null;
+        return result;
     }
 
     private Integer detectFloor(String filename) {
@@ -81,7 +97,7 @@ public class TxtFileDataSource extends FileDataSource {
             Log.e(TAG, "Not a valid file name{ " + filename + " }");
             return null;
         }
-        if (!floorMaps.contains(new FloorMap(-1, null, floor, null))) {
+        if (!zSet.get(floor)) {
             Log.e(TAG, "Not found floor{ " + floor + "} file name{ " + filename + " }");
             return null;
         }
@@ -103,7 +119,7 @@ public class TxtFileDataSource extends FileDataSource {
                     line = lineIterator.next();
                     node = parseLine2Node(line);
                     if (node != null) {
-                        if (nodes.get(floor).contains(node)) {
+                        if (!idSet.add(Integer.valueOf(node.getId()))) {
                             Log.e(TAG, "Multi Nodes have the same ID(" + node.getId() + ")");
                         }
                         nodes.get(floor).add(node);
@@ -130,9 +146,9 @@ public class TxtFileDataSource extends FileDataSource {
         }
         int id = s2i(oneLevel[0]);
         String name = oneLevel[1].trim();
-        boolean shown = !oneLevel[2].equals("0");
-        GPoint point = parsePoint(oneLevel[3]);
-        if (point == null) {
+        boolean shown = isTrue(oneLevel[2]);
+        GPoint gPoint = parseGPoint(oneLevel[3]);
+        if (gPoint == null) {
             return null;
         }
         int shapeId = s2i(oneLevel[4]);
@@ -142,7 +158,7 @@ public class TxtFileDataSource extends FileDataSource {
             return null;
         }
         float degree = s2f(oneLevel[5]);
-        return new Node(id, name, point, new ShapeInfo(shape, degree));
+        return new Node(id, name, gPoint, new ShapeInfo(shape, degree));
     }
 
     private boolean loadWays() {
@@ -160,7 +176,7 @@ public class TxtFileDataSource extends FileDataSource {
                     line = lineIterator.next();
                     way = parseLine2Way(line);
                     if (way != null) {
-                        if (ways.get(floor).contains(way)) {
+                        if (!idSet.add(Integer.valueOf(way.getId()))) {
                             Log.e(TAG, "Multi Ways have the same ID(" + way.getId() + ")");
                         }
                         ways.get(floor).add(way);
@@ -187,11 +203,11 @@ public class TxtFileDataSource extends FileDataSource {
         }
         int id = s2i(oneLevel[0]);
         String name = oneLevel[1].trim();
-        boolean shown = !oneLevel[2].equals("0");
-        boolean oneWay = !oneLevel[3].equals("0");
+        boolean shown = isTrue(oneLevel[2]);
+        boolean oneWay = isTrue(oneLevel[3]);
         Way.WayNode[] wayNodes = parseWayNodes(oneLevel[4]);
         if (wayNodes != null && wayNodes.length > 1) {
-            return new Way(id, name, shown, wayNodes, oneWay);
+            return new Way(id, name, shown, oneWay, wayNodes);
         }
         return null;
     }
@@ -230,10 +246,16 @@ public class TxtFileDataSource extends FileDataSource {
                     line = lineIterator.next();
                     floorMap = parseLine2FloorMap(line);
                     if (floorMap != null) {
-                        if (floorMaps.contains(floorMap)) {
+                        if (!idSet.add(Integer.valueOf(floorMap.getId()))) {
+                            Log.e(TAG, "Multi FloorMaps have the same ID(" + floorMap.getId() + ")");
+                        }
+                        if (zSet.get(floorMap.getZ())) {
                             Log.e(TAG, "Multi FloorMap have the same z(" + floorMap.getZ() + ")");
                         }
                         floorMaps.add(floorMap);
+                        ways.put(Integer.valueOf(floorMap.getZ()), new LinkedList<Way>());
+                        nodes.put(Integer.valueOf(floorMap.getZ()), new LinkedList<Node>());
+                        zSet.set(floorMap.getZ());
                         continue;
                     }
                     Log.e(TAG, false + "\t" + line);
@@ -252,20 +274,19 @@ public class TxtFileDataSource extends FileDataSource {
 
     private FloorMap parseLine2FloorMap(String line) {
         String[] oneLevel = line.split(ONE_LEVEL_SEPARATOR);
-        if (oneLevel.length != 6) {
+        if (oneLevel.length != 5) {
             return null;
         }
         int id = s2i(oneLevel[0]);
         String name = oneLevel[1].trim();
-        boolean shown = !oneLevel[2].equals("0");
-        int z = s2i(oneLevel[3]);
-        int shapeId = s2i(oneLevel[4]);
+        int z = s2i(oneLevel[2]);
+        int shapeId = s2i(oneLevel[3]);
         ShapeInfo.Shape shape = shapes.get(Integer.valueOf(shapeId));
         if (shape == null) {
             Log.e(TAG, "The Shape with ID{ " + shapeId + " } not found");
             return null;
         }
-        float degree = s2f(oneLevel[5]);
+        float degree = s2f(oneLevel[4]);
         return new FloorMap(id, name, z, new ShapeInfo(shape, degree));
     }
 
@@ -280,7 +301,7 @@ public class TxtFileDataSource extends FileDataSource {
                     line = lineIterator.next();
                     shape = parseLine2Shape(line);
                     if (shape != null) {
-                        if (shapes.containsKey(shape.getId())) {
+                        if (!idSet.add(Integer.valueOf(shape.getId()))) {
                             Log.e(TAG, "Multi Shapes have the same ID(" + shape.getId() + ")");
                         }
                         shapes.put(shape.getId(), shape);
@@ -302,11 +323,11 @@ public class TxtFileDataSource extends FileDataSource {
     private ShapeInfo.Shape parseLine2Shape(String line) {
         String[] oneLevel = line.split(ONE_LEVEL_SEPARATOR);
         if (oneLevel.length != 2) {
-            Log.e(TAG, "Error formate line{ " + line + " }");
+            Log.e(TAG, "Error formate line{ " + line + " }, oneLevel.length=" + oneLevel.length);
             return null;
         }
         int id = s2i(oneLevel[0]);
-        Point[] points = parsePoints(oneLevel[2]);
+        Point[] points = parsePoints(oneLevel[1]);
         if (points != null && points.length > 2) {
             return new ShapeInfo.Shape(id, points);
         }
@@ -326,26 +347,52 @@ public class TxtFileDataSource extends FileDataSource {
         return points.toArray(new Point[points.size()]);
     }
 
-    private GPoint parsePoint(String line) {
+    private Point parsePoint(String line) {
         String[] ps = line.split(THREE_LEVEL_SEPARATOR);
-        GPoint p = null;
-        if (ps.length == 3) {
-            p = new GPoint(s2i(ps[0]), s2i(ps[1]), s2i(ps[2]));
-        }
-        else if (ps.length == 2) {
-            p = new GPoint(s2i(ps[0]), s2i(ps[1]));
+        Point p = null;
+        if (ps.length == 2) {
+            p = new Point(s2i(ps[0]), s2i(ps[1]));
         } else {
             Log.e(TAG, "Error formate point{ " + line + " }");
         }
         return p;
     }
 
+    private GPoint[] parseGPoints(String line) {
+        String[] ps = line.split(TWO_LEVEL_SEPARATOR);
+        ArrayList<GPoint> gPoints = new ArrayList<>(ps.length);
+        GPoint gPoint;
+        for (String p : ps) {
+            gPoint = parseGPoint(p);
+            if (gPoint != null) {
+                gPoints.add(gPoint);
+            }
+        }
+        return gPoints.toArray(new GPoint[gPoints.size()]);
+    }
+
+    private GPoint parseGPoint(String line) {
+        String[] ps = line.split(THREE_LEVEL_SEPARATOR);
+        GPoint p = null;
+        if (ps.length == 3) {
+            p = new GPoint(s2i(ps[0]), s2i(ps[1]), s2i(ps[2]));
+        }
+        else {
+            Log.e(TAG, "Error formate gpoint{ " + line + " }");
+        }
+        return p;
+    }
+
     private int s2i(String s) {
-        return Integer.parseInt(s);
+        return Integer.parseInt(s.trim());
     }
 
     private float s2f(String s) {
-        return Float.parseFloat(s);
+        return Float.parseFloat(s.trim());
+    }
+
+    private boolean isTrue(String s) {
+        return !(s2i(s) == 0);
     }
 
     private File[] getFiles(final String prefix) {
@@ -485,5 +532,24 @@ public class TxtFileDataSource extends FileDataSource {
             throw new UnsupportedOperationException("Remove unsupported on LineIterator");
         }
 
+    }
+
+    /**
+     * Modified to adopt negative index.
+     * Because we Just use set and get methods,
+     * so just modify these two methods.
+     */
+    class NBitSet extends BitSet {
+        final int ADJUE = 127;
+
+        @Override
+        public void set(int bitIndex) {
+            super.set(bitIndex+ADJUE);
+        }
+
+        @Override
+        public boolean get(int bitIndex) {
+            return super.get(bitIndex+ADJUE);
+        }
     }
 }

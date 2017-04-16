@@ -1,0 +1,6 @@
+# floor*.txt
+# id |  name | z | shapeId | degree
+# int| string|int|   int   |  float
+2001|OneFloor|1|1001|0
+2002|TwoFloor|2|1002|88
+2004|background|-12|1001|-45.8

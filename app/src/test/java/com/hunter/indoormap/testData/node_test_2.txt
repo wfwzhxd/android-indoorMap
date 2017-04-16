@@ -1,0 +1,5 @@
+# node*_?.txt  (? is floor)
+# id | name |shown| x,y,z |shapeId| degree
+# int|string| 0/1 | int[] |  int  | float
+4002|ZhuJiao|1|589,638,1|1001|0
+4003|CanTing|1|-327,529,2|1002|-257

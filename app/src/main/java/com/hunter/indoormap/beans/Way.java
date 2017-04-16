@@ -2,6 +2,8 @@ package com.hunter.indoormap.beans;
 
 import com.hunter.indoormap.CoordinateUtils;
 
+import java.util.Arrays;
+
 /**
  * Created by hunter on 3/25/17.
  */
@@ -19,6 +21,16 @@ public class Way extends MObj {
             super(x, y, z);
             this.wide = wide;
         }
+
+        @Override
+        public String toString() {
+            return "WayNode{" +
+                    "x=" + x +
+                    ", y=" + y +
+                    ", z=" + z +
+                    ", wide=" + wide +
+                    '}';
+        }
     }
 
     WayNode[] wayNodes;
@@ -33,10 +45,10 @@ public class Way extends MObj {
     }
 
     public Way(int id, String name, WayNode[] wayNodes) {
-        this(id, name, true, wayNodes, false);
+        this(id, name, true, false, wayNodes);
     }
 
-    public Way(int id, String name, boolean show, WayNode[] wayNodes, boolean oneway) {
+    public Way(int id, String name, boolean show, boolean oneway, WayNode[] wayNodes) {
         super(id, name, show);
         setWayNodes(wayNodes);
         this.oneway = oneway;
@@ -112,5 +124,17 @@ public class Way extends MObj {
             System.out.println(boundsMinX + " " + boundsMaxX + " " + boundsMinY + " " + boundsMaxY);
         }
         bounds = new Rect(boundsMinX, boundsMinY, boundsMaxX, boundsMaxY);
+    }
+
+    @Override
+    public String toString() {
+        return "Way{" +
+                "id=" + id +
+                ", name=" + name +
+                ", show=" + show +
+                ", wayNodes=" + Arrays.toString(wayNodes) +
+                ", oneway=" + oneway +
+                ", shapeInfos=" + Arrays.toString(shapeInfos) +
+                '}';
     }
 }
