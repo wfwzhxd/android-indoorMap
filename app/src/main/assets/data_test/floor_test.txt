@@ -1,0 +1,4 @@
+# floor*.txt
+# id |  name | z | shapeId | degree
+# int| string|int|   int   |  float
+2001|OneFloor|1|1003|0

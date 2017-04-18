@@ -3,6 +3,10 @@ package com.hunter.indoormap.beans;
 import com.hunter.indoormap.CoordinateUtils;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by hunter on 3/25/17.
@@ -20,6 +24,10 @@ public class Way extends MObj {
         public WayNode(int x, int y, int z, float wide) {
             super(x, y, z);
             this.wide = wide;
+        }
+
+        public float getWide() {
+            return wide;
         }
 
         @Override
@@ -60,8 +68,19 @@ public class Way extends MObj {
 
     public void setWayNodes(WayNode[] wayNodes) {
         this.wayNodes = wayNodes;
-        shapeInfos = new ShapeInfo[wayNodes.length>0?wayNodes.length-1:wayNodes.length];
+        generateShapeInfos();
         bounds = null;
+    }
+
+    private void generateShapeInfos() {
+        shapeInfos = new ShapeInfo[wayNodes.length>0?wayNodes.length-1:0];
+        for (int i=0; i < wayNodes.length-1; i++) {
+            shapeInfos[i] = calculateShapeInfo(wayNodes[i], wayNodes[i+1]);
+        }
+    }
+
+    public ShapeInfo[] getShapeInfos() {
+        return shapeInfos;
     }
 
     public boolean isOneway() {
@@ -72,18 +91,11 @@ public class Way extends MObj {
         this.oneway = oneway;
     }
 
-    private ShapeInfo getShapeInfo(int i) {
-        if (shapeInfos[i] == null) {
-            shapeInfos[i] = calculateShapeInfo(wayNodes[i], wayNodes[i+1]);
-        }
-        return shapeInfos[i];
-    }
-
     @Override
     public boolean contains(Point point) {
         for (int i=0; i < wayNodes.length-1; i++) {
             point = CoordinateUtils.relativeCoord(wayNodes[i], point);
-            if (getShapeInfo(i).contains(point)) {
+            if (shapeInfos[i].contains(point)) {
                 return true;
             }
         }
@@ -117,10 +129,10 @@ public class Way extends MObj {
         for (int i = 0; i < wayNodes.length; i++) {
             int halfRound = Math.round(wayNodes[i].wide/2);
             System.out.println(i + " halfRound: " + halfRound);
-            boundsMinX = Math.min(boundsMinX, wayNodes[i].x-halfRound);
-            boundsMaxX = Math.max(boundsMaxX, wayNodes[i].x+halfRound);
-            boundsMinY = Math.min(boundsMinY, wayNodes[i].y-halfRound);
-            boundsMaxY = Math.max(boundsMaxY, wayNodes[i].y+halfRound);
+            boundsMinX = (int) Math.min(boundsMinX, wayNodes[i].x-halfRound);
+            boundsMaxX = (int) Math.max(boundsMaxX, wayNodes[i].x+halfRound);
+            boundsMinY = (int) Math.min(boundsMinY, wayNodes[i].y-halfRound);
+            boundsMaxY = (int) Math.max(boundsMaxY, wayNodes[i].y+halfRound);
             System.out.println(boundsMinX + " " + boundsMaxX + " " + boundsMinY + " " + boundsMaxY);
         }
         bounds = new Rect(boundsMinX, boundsMinY, boundsMaxX, boundsMaxY);
@@ -134,7 +146,7 @@ public class Way extends MObj {
                 ", show=" + show +
                 ", wayNodes=" + Arrays.toString(wayNodes) +
                 ", oneway=" + oneway +
-                ", shapeInfos=" + Arrays.toString(shapeInfos) +
+                ", shapeInfos=" + shapeInfos +
                 '}';
     }
 }

@@ -1,16 +1,17 @@
 // Created by plusminus on 20:32:01 - 27.09.2008
-package com.hunter.indoormap;
+package com.hunter.indoormap.overlay;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+
+import com.hunter.indoormap.MapView;
 
 /**
  * {@link Overlay}: Base class representing an overlay which may be displayed on top of a {@link MapView}.
@@ -106,14 +107,8 @@ public abstract class Overlay {
 	// Methods for SuperClass/Interfaces
 	// ===========================================================
 
-	/**
-	 * Draw the overlay over the map. This will be called on all active overlays with shadow=true,
-	 * to lay down the shadow layer, and then again on all overlays with shadow=false. Callers
-	 * should check isEnabled() before calling draw(). By default, draws nothing.
-	 *
-	 * changed for 5.6 to be public see https://github.com/osmdroid/osmdroid/issues/466
-	 */
-	public abstract void draw(final Canvas c, final MapView osmv, final boolean shadow);
+
+	public abstract void draw(final Canvas c, final MapView mv);
 
 	// ===========================================================
 	// Methods

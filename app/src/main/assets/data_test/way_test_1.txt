@@ -1,0 +1,5 @@
+# way*_?.txt  (? is floor)
+# id |  name |shown|oneWay|x,y,z,wide;....
+# int| string| 0/1 |  0/1 |int,int,int,float
+3001|DaZhangLu|1|0|8,0,1,2;8,25,1,2
+3002|WanSLu|1|0|8,25,1,2;27,25,1,2

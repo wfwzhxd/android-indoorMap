@@ -1,6 +1,7 @@
 package com.hunter.indoormap.beans;
 
 import com.hunter.indoormap.CoordinateUtils;
+import com.hunter.indoormap.MathUtils;
 
 /**
  * Created by hunter on 3/25/17.
@@ -9,6 +10,9 @@ import com.hunter.indoormap.CoordinateUtils;
 public class Node extends MObj {
     GPoint xyz;
     ShapeInfo shapeInfo;
+
+    transient float lastScale;
+    transient Point scaledPoit;
 
     public Node(int id, GPoint xyz) {
         this(id, null, xyz, null);
@@ -32,6 +36,13 @@ public class Node extends MObj {
         this.xyz = xyz;
     }
 
+    public Point getScaledXyz(float scale) {
+        if (scaledPoit == null || !MathUtils.isEqual(lastScale, scale)) {
+            scaledPoit = new Point(xyz.x * scale, xyz.y * scale);
+        }
+        return scaledPoit;
+    }
+
     public ShapeInfo getShapeInfo() {
         return shapeInfo;
     }
@@ -47,7 +58,7 @@ public class Node extends MObj {
 
     @Override
     protected void calculateBounds() {
-        bounds = new Rect(shapeInfo.getBounds()).offset(xyz.x, xyz.y);
+        bounds = new Rect(shapeInfo.getBounds()).offset((int)xyz.x, (int)xyz.y);
     }
 
     @Override

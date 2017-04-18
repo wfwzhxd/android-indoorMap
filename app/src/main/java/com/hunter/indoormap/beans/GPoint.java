@@ -9,19 +9,11 @@ public class GPoint extends Point{
 
     public int z;
 
-    public static GPoint from(int x, int y) {
-        return new GPoint(x, y);
-    }
-
-    public static GPoint from(int x, int y, int z) {
-        return new GPoint(x, y, z);
-    }
-
-    public GPoint(int x, int y) {
+    public GPoint(float x, float y) {
         this(x, y, 0);
     }
 
-    public GPoint(int x, int y, int z) {
+    public GPoint(float x, float y, int z) {
         super(x, y);
         this.z = z;
     }

@@ -1,7 +1,9 @@
-package com.hunter.indoormap;
+package com.hunter.indoormap.overlay;
 
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.hunter.indoormap.MapView;
 
 public interface IOverlayMenuProvider {
 	public boolean onCreateOptionsMenu(final Menu pMenu, final int pMenuIdOffset,

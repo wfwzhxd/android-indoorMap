@@ -99,8 +99,7 @@ public final class Rect implements Parcelable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
-        android.graphics.Rect r = (android.graphics.Rect) o;
+        Rect r = (Rect) o;
         return left == r.left && top == r.top && right == r.right && bottom == r.bottom;
     }
 
@@ -634,13 +633,24 @@ public final class Rect implements Parcelable {
      * Scales up the rect by the given scale.
      * @hide
      */
-    public void scale(float scale) {
+    public Rect scale(float scale) {
         if (scale != 1.0f) {
             left = (int) (left * scale + 0.5f);
             top = (int) (top * scale + 0.5f);
             right = (int) (right * scale + 0.5f);
             bottom = (int) (bottom * scale + 0.5f);
         }
+        return this;
+    }
+
+    public Rect enlarge(float scale) {
+        if (scale != 1.0f) {
+            left = (int) (left * (1-scale) + 0.5f);
+            top = (int) (top * (1-scale) + 0.5f);
+            right = (int) (right * scale + 0.5f);
+            bottom = (int) (bottom * scale + 0.5f);
+        }
+        return this;
     }
 
 }

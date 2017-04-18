@@ -59,6 +59,10 @@ public abstract class FileDataSource implements DataSource {
         }
     }
 
+    public boolean isDataLoaded() {
+        return dataLoaded;
+    }
+
     @Override
     public int[] getFloors() {
         checkDataLoaded();

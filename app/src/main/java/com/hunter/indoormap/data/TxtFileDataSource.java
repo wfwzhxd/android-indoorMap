@@ -1,5 +1,7 @@
 package com.hunter.indoormap.data;
 
+import android.content.res.AssetManager;
+
 import com.hunter.indoormap.Log;
 
 import com.hunter.indoormap.beans.FloorMap;
@@ -16,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
@@ -24,6 +27,7 @@ import java.util.BitSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -60,6 +64,9 @@ public class TxtFileDataSource extends FileDataSource {
 
     private File dataDir;
 
+    private AssetManager assetManager;
+    private String dataDir2;
+
     private Set idSet;
     private NBitSet zSet;
 
@@ -68,6 +75,15 @@ public class TxtFileDataSource extends FileDataSource {
             throw new IllegalArgumentException("dataDir MUST be a valid directory");
         }
         this.dataDir = dataDir;
+        loadData();
+    }
+
+    public TxtFileDataSource(AssetManager assetManager, String dataDir) {
+        if (assetManager == null) {
+            throw new NullPointerException("AsserManager is Null");
+        }
+        this.assetManager = assetManager;
+        this.dataDir2 = dataDir;
         loadData();
     }
 
@@ -82,6 +98,9 @@ public class TxtFileDataSource extends FileDataSource {
         Log.o("\nways :\n" + ways.toString());
         idSet = null;
         zSet = null;
+        if (result) {
+            this.assetManager = null;
+        }
         return result;
     }
 
@@ -113,7 +132,7 @@ public class TxtFileDataSource extends FileDataSource {
             LineIterator lineIterator = null;
             Node node;
             try {
-                lineIterator = new LineIterator(file);
+                lineIterator = createLineIterator(file);
                 String line;
                 while (lineIterator.hasNext()) {
                     line = lineIterator.next();
@@ -170,7 +189,7 @@ public class TxtFileDataSource extends FileDataSource {
             LineIterator lineIterator = null;
             Way way;
             try {
-                lineIterator = new LineIterator(file);
+                lineIterator = createLineIterator(file);
                 String line;
                 while (lineIterator.hasNext()) {
                     line = lineIterator.next();
@@ -240,7 +259,7 @@ public class TxtFileDataSource extends FileDataSource {
             LineIterator lineIterator = null;
             FloorMap floorMap;
             try {
-                lineIterator = new LineIterator(file);
+                lineIterator = createLineIterator(file);
                 String line;
                 while (lineIterator.hasNext()) {
                     line = lineIterator.next();
@@ -295,7 +314,7 @@ public class TxtFileDataSource extends FileDataSource {
             LineIterator lineIterator = null;
             ShapeInfo.Shape shape;
             try {
-                lineIterator = new LineIterator(file);
+                lineIterator = createLineIterator(file);
                 String line;
                 while (lineIterator.hasNext()) {
                     line = lineIterator.next();
@@ -395,15 +414,39 @@ public class TxtFileDataSource extends FileDataSource {
         return !(s2i(s) == 0);
     }
 
-    private File[] getFiles(final String prefix) {
-        return dataDir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                name = name.toLowerCase();
-                String upPrefix = prefix.toLowerCase();
-                return name.endsWith(DATAFILE_SUFFIX) && name.startsWith(upPrefix);
+    private File[] getFiles(String prefix) {
+        final String lowPrefix = prefix.toLowerCase();
+        if (dataDir != null) {
+            return dataDir.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    name = name.toLowerCase();
+                    return name.endsWith(DATAFILE_SUFFIX) && name.startsWith(lowPrefix);
+                }
+            });
+        }
+        // From Assets
+        try {
+            List<File> files = new ArrayList<>();
+            for (String filename : assetManager.list(dataDir2)) {
+                filename = filename.toLowerCase();
+                if (filename.endsWith(DATAFILE_SUFFIX) && filename.startsWith(lowPrefix)) {
+                    files.add(new File(filename));
+                }
             }
-        });
+            return files.toArray(new File[files.size()]);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new File[0];
+    }
+
+    private LineIterator createLineIterator(File file) throws IOException {
+        if (dataDir == null) {
+            return new LineIterator(assetManager.open(dataDir2 + File.separator + file.getName(), AssetManager.ACCESS_BUFFER));
+        }else {
+            return new LineIterator(file);
+        }
     }
 
     /**
@@ -438,7 +481,11 @@ public class TxtFileDataSource extends FileDataSource {
         }
 
         public LineIterator(File file) throws FileNotFoundException, UnsupportedEncodingException {
-            this(new InputStreamReader(new FileInputStream(file), TxtFileDataSource.DATAFILE_ENCODING));
+            this(new FileInputStream(file));
+        }
+
+        public LineIterator(InputStream inputStream) throws UnsupportedEncodingException {
+            this(new InputStreamReader(inputStream, TxtFileDataSource.DATAFILE_ENCODING));
         }
 
         //-----------------------------------------------------------------------
@@ -476,7 +523,7 @@ public class TxtFileDataSource extends FileDataSource {
 
 
         protected boolean isValidLine(final String line) {
-            return !line.startsWith(TxtFileDataSource.IGNORE_PREFIX);
+            return line.length() != 0 && !line.startsWith(TxtFileDataSource.IGNORE_PREFIX);
         }
 
         /**

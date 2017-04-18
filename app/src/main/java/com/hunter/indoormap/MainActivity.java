@@ -10,6 +10,9 @@ import com.hunter.indoormap.beans.GPoint;
 import com.hunter.indoormap.beans.Node;
 import com.hunter.indoormap.beans.ShapeInfo;
 import com.hunter.indoormap.beans.Way;
+import com.hunter.indoormap.data.TxtFileDataSource;
+import com.hunter.indoormap.overlay.NodeOverlay;
+import com.hunter.indoormap.overlay.WayOverlay;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -19,12 +22,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        findViewById(R.id.map_btn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "click", Toast.LENGTH_SHORT).show();
-            }
-        });
+        mapView = (MapView) findViewById(R.id.map_view);
+        mapView.getOverlayManager().add(new NodeOverlay());
+        mapView.getOverlayManager().add(new WayOverlay());
+        mapView.setDataSource(new TxtFileDataSource(getAssets(), "data_test"));
+        mapView.setFloor(1);
+        mapView.setScale(25);
     }
     /*
     private void fakeData() {

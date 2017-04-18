@@ -1,4 +1,4 @@
-package com.hunter.indoormap;
+package com.hunter.indoormap.overlay;
 
 import java.util.AbstractList;
 import java.util.Iterator;
@@ -12,6 +12,8 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+
+import com.hunter.indoormap.MapView;
 
 public class DefaultOverlayManager extends AbstractList<Overlay> implements OverlayManager {
 
@@ -36,7 +38,7 @@ public class DefaultOverlayManager extends AbstractList<Overlay> implements Over
         if (pElement==null){
             //#396 fix, null check
             Exception ex = new Exception();
-            Log.e(MapView.LOGTAG, "Attempt to add a null overlay to the collection. This is probably a bug and should be reported!",ex);
+            Log.e(MapView.TAG, "Attempt to add a null overlay to the collection. This is probably a bug and should be reported!",ex);
         } else {
             mOverlayList.add(pIndex, pElement);
         }
@@ -52,7 +54,7 @@ public class DefaultOverlayManager extends AbstractList<Overlay> implements Over
         //#396 fix, null check
         if (pElement==null){
             Exception ex = new Exception();
-            Log.e(MapView.LOGTAG, "Attempt to set a null overlay to the collection. This is probably a bug and should be reported!",ex);
+            Log.e(MapView.TAG, "Attempt to set a null overlay to the collection. This is probably a bug and should be reported!",ex);
             return null;
         } else {
             Overlay overlay = mOverlayList.set(pIndex, pElement);
@@ -96,11 +98,10 @@ public class DefaultOverlayManager extends AbstractList<Overlay> implements Over
     @Override
     public void onDraw(final Canvas c, final MapView pMapView) {
 
-        //always pass false, the shadow parameter will be removed in a later version of osmdroid, this change should result in the on draw being called twice
         for (final Overlay overlay : mOverlayList) {
             //#396 fix, null check
             if (overlay!=null && overlay.isEnabled()) {
-                overlay.draw(c, pMapView, false);
+                overlay.draw(c, pMapView);
             }
         }
         //potential fix for #52 pMapView.invalidate();

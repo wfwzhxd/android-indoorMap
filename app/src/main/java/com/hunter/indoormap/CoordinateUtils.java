@@ -21,6 +21,10 @@ public class CoordinateUtils {
         return new Point(point.x + origin.x, point.y + origin.y);
     }
 
+    public static Point[] absoluteCoord(Point origin, Point[] points) {
+        return pointOffset(points, origin.x, origin.y);
+    }
+
     public static Point rotateAtPoint(Point center, Point point, float degree, boolean reuse) {
         float distance = calDistance(center, point);
         float oriDrgree = calDegree(center, point);
@@ -30,8 +34,8 @@ public class CoordinateUtils {
         }
         System.out.println(degree + " " + oriDrgree + " " + desDegree);
         double radians = degree2radians(desDegree);
-        int x = (int) Math.round(center.x + Math.cos(radians) * distance);
-        int y = (int) Math.round(center.y + Math.sin(radians) * distance);
+        float x = (float) (center.x + Math.cos(radians) * distance);
+        float y = (float) (center.y + Math.sin(radians) * distance);
         return reuse ? point.set(x, y) : new Point(x, y);
     }
 
@@ -53,14 +57,26 @@ public class CoordinateUtils {
         return (float) (degree < 0 ? 360+degree : degree);
     }
 
-    public static Point pointOffset(Point point, int dx, int dy) {
+    public static Point pointOffset(Point point, float dx, float dy) {
         return new Point(point.x + dx, point.y + dy);
     }
 
-    public static Point[] pointOffset(Point[] points, int dx, int dy) {
+    public static Point[] pointOffset(Point[] points, float dx, float dy) {
         Point[] newPoints = new Point[points.length];
         for (int i=0; i<points.length; i++) {
             newPoints[i] = pointOffset(points[i], dx, dy);
+        }
+        return newPoints;
+    }
+
+    public static Point pointScale(Point point, float scale) {
+        return new Point(point.x*scale, point.y*scale);
+    }
+
+    public static Point[] pointScale(Point[] points, float scale) {
+        Point[] newPoints = new Point[points.length];
+        for (int i=0; i<points.length; i++) {
+            newPoints[i] = pointScale(points[i], scale);
         }
         return newPoints;
     }

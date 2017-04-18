@@ -1,5 +1,7 @@
 package com.hunter.indoormap.beans;
 
+import com.hunter.indoormap.MathUtils;
+
 import java.io.PipedOutputStream;
 
 /**
@@ -9,18 +11,34 @@ import java.io.PipedOutputStream;
 public class Point {
     public static final Point ORIGIN = new Point(0, 0); //原点
 
-    public int x;
-    public int y;
+    public float x;
+    public float y;
 
     public Point() {}
 
-    public Point(int x, int y) {
+    public Point(float x, float y) {
         set(x, y);
     }
 
-    public Point set(int x, int y) {
+    public Point(int x, int y) {
+        this((float) x, (float) y);
+    }
+
+    public Point set(float x, float y) {
         this.x = x;
         this.y = y;
+        return this;
+    }
+
+    public Point scale(float scale) {
+        x *= scale;
+        y *= scale;
+        return this;
+    }
+
+    public Point offset(int dx, int dy) {
+        this.x += dx;
+        this.y += dy;
         return this;
     }
 
@@ -30,7 +48,7 @@ public class Point {
             return false;
         }
         Point obj2 = (Point) obj;
-        return x==obj2.x && y==obj2.y;
+        return MathUtils.isEqual(x, obj2.x) && MathUtils.isEqual(y, obj2.y);
     }
 
     @Override

@@ -1,10 +1,13 @@
-package com.hunter.indoormap;
+package com.hunter.indoormap.overlay;
 
 import android.graphics.Canvas;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+
+import com.hunter.indoormap.MapView;
+import com.hunter.indoormap.overlay.Overlay;
 
 import java.util.List;
 

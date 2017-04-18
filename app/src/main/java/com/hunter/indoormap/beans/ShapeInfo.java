@@ -1,6 +1,7 @@
 package com.hunter.indoormap.beans;
 
 import com.hunter.indoormap.CoordinateUtils;
+import com.hunter.indoormap.MathUtils;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -15,7 +16,10 @@ public class ShapeInfo {
 
         int id;
         Point[] points;
+
         transient Rect bounds;
+        transient Point[] scaledPoints;
+        transient float lastScale;
 
         public Shape(int id, Point[] points) {
             this.id = id;
@@ -29,6 +33,14 @@ public class ShapeInfo {
         public void setPoints(Point[] points) {
             this.points = points;
             bounds = null;
+        }
+
+        public Point[] getScaledPoints(float scale) {
+            if (scaledPoints == null || !MathUtils.isEqual(lastScale, scale)) {
+                lastScale = scale;
+                scaledPoints = CoordinateUtils.pointScale(points, scale);
+            }
+            return scaledPoints;
         }
 
         public int getId() {
@@ -53,10 +65,10 @@ public class ShapeInfo {
             int boundsMaxY = Integer.MIN_VALUE;
 
             for (int i = 0; i < points.length; i++) {
-                int x = points[i].x;
+                int x = (int) points[i].x;
                 boundsMinX = Math.min(boundsMinX, x);
                 boundsMaxX = Math.max(boundsMaxX, x);
-                int y = points[i].y;
+                int y = (int) points[i].y;
                 boundsMinY = Math.min(boundsMinY, y);
                 boundsMaxY = Math.max(boundsMaxY, y);
             }
@@ -70,16 +82,16 @@ public class ShapeInfo {
          */
         public boolean contains(Point point) {
             boolean flag = false;
-            int px = point.x;
-            int py = point.y;
+            float px = point.x;
+            float py = point.y;
             System.out.println(px + "," + py);
             int i = 0;
             int j = points.length - 1;
             for (; i < points.length; j = i, i++) {
-                int sx = points[i].x;
-                int sy = points[i].y;
-                int tx = points[j].x;
-                int ty = points[j].y;
+                float sx = points[i].x;
+                float sy = points[i].y;
+                float tx = points[j].x;
+                float ty = points[j].y;
                 System.out.println(i + "： " + sx + ", "+ sy + ", "+ tx + ", "+ ty);
                 if ((sx == px && sy == py) || (tx == px && ty == py)) {
                     System.out.println(i + "顶点重合");
@@ -125,7 +137,10 @@ public class ShapeInfo {
 
     private Shape shape;
     private float shapeDegree;
-    Rect bounds;
+
+    private transient Rect bounds;
+    private transient Point[] points;
+    transient float lastScale;
 
     public ShapeInfo(Shape shape) {
         set(shape, shapeDegree);
@@ -138,6 +153,7 @@ public class ShapeInfo {
     private ShapeInfo set(Shape shape, float shapeDegree) {
         if (shapeDegree != this.shapeDegree || (shape==null || shape != this.shape)) {
             bounds = null;
+            points = null;
         }
         this.shape = shape;
         this.shapeDegree = shapeDegree;
@@ -162,6 +178,19 @@ public class ShapeInfo {
 
     public boolean contains(Point testPoint) {
         return shape.contains(CoordinateUtils.rotateAtPoint(Point.ORIGIN, testPoint, -shapeDegree, false));
+    }
+
+    /**
+     * Used to Draw
+     * @param scale
+     * @return
+     */
+    public Point[] getScaledPoints(float scale) {
+        if (points == null || !MathUtils.isEqual(lastScale, scale)) {
+            lastScale = scale;
+            points = CoordinateUtils.rotateAtPoint(Point.ORIGIN, shape.getScaledPoints(scale), shapeDegree, false);
+        }
+        return points;
     }
 
     public Rect getBounds() {
