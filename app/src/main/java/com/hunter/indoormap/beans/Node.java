@@ -56,6 +56,10 @@ public class Node extends MObj {
         return shapeInfo.contains(CoordinateUtils.relativeCoord(xyz, point));
     }
 
+    public float getArea() {
+        return shapeInfo.getShape().getArea();
+    }
+
     @Override
     protected void calculateBounds() {
         bounds = new Rect(shapeInfo.getBounds()).offset((int)xyz.x, (int)xyz.y);

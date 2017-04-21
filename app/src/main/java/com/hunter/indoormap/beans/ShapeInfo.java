@@ -20,6 +20,7 @@ public class ShapeInfo {
         transient Rect bounds;
         transient Point[] scaledPoints;
         transient float lastScale;
+        float area;
 
         public Shape(int id, Point[] points) {
             this.id = id;
@@ -33,6 +34,7 @@ public class ShapeInfo {
         public void setPoints(Point[] points) {
             this.points = points;
             bounds = null;
+            area = -1;
         }
 
         public Point[] getScaledPoints(float scale) {
@@ -73,6 +75,21 @@ public class ShapeInfo {
                 boundsMaxY = Math.max(boundsMaxY, y);
             }
             bounds = new Rect(boundsMinX, boundsMinY, boundsMaxX, boundsMaxY);
+        }
+
+        public float getArea() {
+            if (area < 0) {
+                if(points.length < 3) {
+                    area = 0;
+                } else {
+                    double s = 0;
+                    for(int i = 0; i < points.length; i++) {
+                        s += points[i].x * points[(i+1)%points.length].y - points[i].y * points[(i+1)%points.length].x;
+                    }
+                    area = (float) Math.abs(s/2.0);
+                }
+            }
+            return area;
         }
 
         /**
@@ -191,6 +208,10 @@ public class ShapeInfo {
             points = CoordinateUtils.rotateAtPoint(Point.ORIGIN, shape.getScaledPoints(scale), shapeDegree, false);
         }
         return points;
+    }
+
+    public Point[] getPoints() {
+        return CoordinateUtils.rotateAtPoint(Point.ORIGIN, shape.points, shapeDegree, false);
     }
 
     public Rect getBounds() {

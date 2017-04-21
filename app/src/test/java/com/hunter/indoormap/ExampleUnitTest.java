@@ -19,7 +19,7 @@ public class ExampleUnitTest {
 
     @Test
     public void createGPoint() {
-        GPoint gPoint = GPoint.from(4, 5, 6);
+        GPoint gPoint = new GPoint(4, 5, 6);
         assertEquals(6, gPoint.z);
     }
 }

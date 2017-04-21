@@ -16,6 +16,7 @@ package com.hunter.indoormap.beans;
  * limitations under the License.
  */
 
+import android.graphics.RectF;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -39,6 +40,14 @@ public final class Rect implements Parcelable {
     public int top;
     public int right;
     public int bottom;
+
+    public Rect(RectF rectF) {
+        this(Math.round(rectF.left), Math.round(rectF.top), Math.round(rectF.right), Math.round(rectF.bottom));
+    }
+
+    public Rect(android.graphics.Rect rect) {
+        this(rect.left, rect.top, rect.right, rect.bottom);
+    }
 
     /**
      * A helper class for flattened rectange pattern recognition. A separate
@@ -645,12 +654,20 @@ public final class Rect implements Parcelable {
 
     public Rect enlarge(float scale) {
         if (scale != 1.0f) {
-            left = (int) (left * (1-scale) + 0.5f);
-            top = (int) (top * (1-scale) + 0.5f);
-            right = (int) (right * scale + 0.5f);
-            bottom = (int) (bottom * scale + 0.5f);
+            left += (int) (width() * (1-scale) + 0.5f);
+            top += (int) (height() * (1-scale) + 0.5f);
+            right += (int) (width() * (scale-1) + 0.5f);
+            bottom += (int) (height() * (scale-1) + 0.5f);
         }
         return this;
+    }
+
+    public RectF toRectF() {
+        return new RectF(left, top, right, bottom);
+    }
+
+    public android.graphics.Rect toRect() {
+        return new android.graphics.Rect(left, top, right, bottom);
     }
 
 }

@@ -2,6 +2,8 @@ package com.hunter.indoormap;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.RectF;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -16,21 +18,31 @@ import com.hunter.indoormap.overlay.DefaultOverlayManager;
 import com.hunter.indoormap.overlay.Overlay;
 import com.hunter.indoormap.overlay.OverlayManager;
 
+import org.metalev.multitouch.controller.MultiTouchController;
+
+import java.util.Arrays;
 import java.util.List;
 
-public class MapView extends RelativeLayout {
+public class MapView extends RelativeLayout implements MultiTouchController.MultiTouchObjectCanvas<Object>{
     public static final String TAG = MapView.class.getSimpleName();
 
     private final GestureDetector mGestureDetector;
+    private MultiTouchController<Object> multiTouchController;
     private OverlayManager mOverlayManager;
 
     private DataSource mDataSource;
     private int floor;
 
-    private float scale = 1.0f;
-
     private int mapScrollX;
     private int mapScrollY;
+
+    private float scale;
+    private float rotate;
+
+    private boolean rotatable;
+
+    private Matrix matrix;
+    private Matrix invertMatrix;
 
     public MapView(Context context) {
         this(context, null);
@@ -51,20 +63,26 @@ public class MapView extends RelativeLayout {
             }
         };
         mGestureDetector.setOnDoubleTapListener(new MapViewDoubleClickListener());
+        multiTouchController = new MultiTouchController<Object>(this, false);
+
+        matrix = new Matrix();
+        invertMatrix = new Matrix();
+        matrix.invert(invertMatrix);
     }
 
     public void mapScrollBy(int dx, int dy) {
-        mapScrollTo(mapScrollX + dx, mapScrollY + dy);
-    }
-
-    public void mapScrollTo(int x, int y) {
-        mapScrollX = x;
-        mapScrollY = y;
+        matrix.postTranslate(-dx, -dy);
         if (Looper.getMainLooper() == Looper.myLooper()) {
             invalidate();
         } else {
             postInvalidate();
         }
+    }
+
+    public void mapScrollTo(int x, int y) {
+        mapScrollBy(x-mapScrollX, y-mapScrollY);
+        mapScrollX = x;
+        mapScrollY = y;
     }
 
     public int getMapScrollX() {
@@ -75,17 +93,16 @@ public class MapView extends RelativeLayout {
         return mapScrollY;
     }
 
-    public Point[] translatePoint(Point[] points) {
-        for (Point point : points) {
-            translatePoint(point);
-        }
-        return points;
+    public float getRotate() {
+        return rotate;
     }
 
-    public Point translatePoint(Point point) {
-        point.x -= mapScrollX;
-        point.y -= mapScrollY;
-        return point;
+    public boolean isRotatable() {
+        return rotatable;
+    }
+
+    public void setRotatable(boolean rotatable) {
+        this.rotatable = rotatable;
     }
 
     /**
@@ -120,20 +137,24 @@ public class MapView extends RelativeLayout {
         this.floor = floor;
     }
 
-    public float getScale() {
-        return scale;
+    @Override
+    public Matrix getMatrix() {
+        return matrix;
     }
 
-    public void setScale(float scale) {
-        this.scale = scale;
+    public Matrix getInvertMatrix() {
+        return invertMatrix;
+    }
+
+    public void setMatrix(Matrix matrix) {
+        this.matrix = matrix;
     }
 
     public Rect getMapRect() {
-        return getScreenRect().scale(1/scale).enlarge(1.1f);
-    }
-
-    public Rect getScreenRect() {
-        return new Rect(getScrollX(), getScrollY(), getScrollX()+getWidth(), getScrollY()+getHeight());
+        RectF rectF = new Rect(0, 0, getWidth(), getHeight()).enlarge(1.1f).toRectF();
+        invertMatrix.mapRect(rectF);
+        Log.i(TAG, "mapRect " + rectF);
+        return new Rect(rectF);
     }
 
     @Override
@@ -149,23 +170,46 @@ public class MapView extends RelativeLayout {
 
     @Override
     public boolean dispatchTouchEvent(final MotionEvent event) {
-        Log.i(TAG, "dispatchTouchEvent " + event);
+//        Log.i(TAG, "dispatchTouchEvent " + event);
+
         if (super.dispatchTouchEvent(event)) {
-            Log.d(MapView.TAG,"super handled touchEvent");
+//            Log.d(MapView.TAG,"super handled touchEvent");
             return true;
         }
 
+//        rotateTouchEvent(event);
+
         if (this.getOverlayManager().onTouchEvent(event, this)) {
-            Log.d(MapView.TAG,"Overlay handled touchEvent");
+//            Log.d(MapView.TAG,"Overlay handled touchEvent");
+            return true;
+        }
+
+        if (multiTouchController != null && multiTouchController.onTouchEvent(event)) {
+//            Log.d(MapView.TAG,"multiTouchController handled touchEvent");
             return true;
         }
 
         if (mGestureDetector.onTouchEvent(event)) {
-            Log.d(MapView.TAG,"mGestureDetector handled touchEvent");
+//            Log.d(MapView.TAG,"mGestureDetector handled touchEvent");
             return true;
         }
-        Log.i(TAG, "not handle event " + event);
+//        Log.i(TAG, "not handle event " + event);
         return false;
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+
+        Rect fBounds = getDataSource().getFloorMap(floor).getBounds();
+        Log.i(TAG, "fBounds: " + fBounds);
+        scale = getWidth()/fBounds.width();
+        matrix = new Matrix();
+        float halfWidth = getWidth()>>1;
+        float halfHeight = getHeight()>>1;
+        matrix.preScale(scale, scale, fBounds.centerX(), fBounds.centerY());
+        matrix.postTranslate(halfWidth-fBounds.centerX(), halfHeight-fBounds.centerY());
+        matrix.invert(invertMatrix);
     }
 
     @Override
@@ -173,11 +217,47 @@ public class MapView extends RelativeLayout {
         return false;
     }
 
+    @Override
+    public Object getDraggableObjectAtPoint(MultiTouchController.PointInfo touchPoint) {
+        return this;
+    }
+
+    @Override
+    public void getPositionAndScale(Object obj, MultiTouchController.PositionAndScale objPosAndScaleOut) {
+        objPosAndScaleOut.set(0, 0, true, scale, false, 0, 0, true, (float) CoordinateUtils.degree2radians(rotate));
+    }
+
+    long lastMultiTouch;
+
+    @Override
+    public boolean setPositionAndScale(Object obj, MultiTouchController.PositionAndScale newObjPosAndScale, MultiTouchController.PointInfo touchPoint) {
+        lastMultiTouch = System.currentTimeMillis();
+        if (rotatable) {
+            rotate = CoordinateUtils.radians2degree(newObjPosAndScale.getAngle());
+        }
+        scale = newObjPosAndScale.getScale();
+        float[] centers = new float[]{touchPoint.getX(), touchPoint.getY()};
+        Log.i(TAG, "rotate: " + rotate + " center: " + Arrays.toString(centers));
+        invertMatrix.mapPoints(centers);
+        Log.i(TAG, "centers " + Arrays.toString(centers));
+        matrix.setScale(scale, scale, centers[0], centers[1]);
+        matrix.postRotate(rotate, centers[0], centers[1]);
+        matrix.postTranslate(touchPoint.getX()-centers[0], touchPoint.getY()-centers[1]);
+        matrix.invert(invertMatrix);
+        invalidate();
+        return true;
+    }
+
+    @Override
+    public void selectObject(Object obj, MultiTouchController.PointInfo touchPoint) {
+
+    }
+
     private class MapViewGestureDetectorListener implements GestureDetector.OnGestureListener {
 
         @Override
         public boolean onDown(final MotionEvent e) {
-            Log.i(TAG, "onDown");
+//            Log.i(TAG, "onDown");
             MapView.this.getOverlayManager().onDown(e, MapView.this);
             return true;
         }
@@ -185,19 +265,23 @@ public class MapView extends RelativeLayout {
         @Override
         public boolean onFling(final MotionEvent e1, final MotionEvent e2,
                                final float velocityX, final float velocityY) {
-            Log.i(TAG, "onFling " + velocityX + " " + velocityY);
+//            Log.i(TAG, "onFling " + velocityX + " " + velocityY);
             return MapView.this.getOverlayManager().onFling(e1, e2, velocityX, velocityY, MapView.this);
         }
 
         @Override
         public void onLongPress(final MotionEvent e) {
-            Log.i(TAG, "onLongPress");
+//            Log.i(TAG, "onLongPress");
             MapView.this.getOverlayManager().onLongPress(e, MapView.this);
         }
 
         @Override
         public boolean onScroll(final MotionEvent e1, final MotionEvent e2, final float distanceX,
                                 final float distanceY) {
+            if (System.currentTimeMillis() - lastMultiTouch < 200) {
+                Log.i(TAG, "too close with lastMultiTouch");
+                return false;
+            }
             Log.i(TAG, "onScroll " + distanceX + " " + distanceY);
             if (MapView.this.getOverlayManager().onScroll(e1, e2, distanceX, distanceY,
                     MapView.this)) {
@@ -209,13 +293,13 @@ public class MapView extends RelativeLayout {
 
         @Override
         public void onShowPress(final MotionEvent e) {
-            Log.i(TAG, "onShowPress");
+//            Log.i(TAG, "onShowPress");
             MapView.this.getOverlayManager().onShowPress(e, MapView.this);
         }
 
         @Override
         public boolean onSingleTapUp(final MotionEvent e) {
-            Log.i(TAG, "onSingleTapUp");
+//            Log.i(TAG, "onSingleTapUp");
             if (MapView.this.getOverlayManager().onSingleTapUp(e, MapView.this)) {
                 return true;
             }
