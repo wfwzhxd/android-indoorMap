@@ -303,6 +303,10 @@ public final class Rect implements Parcelable {
         return this;
     }
 
+    public Rect offset(float dx, float dy) {
+        return offset((int)dx, (int)dy);
+    }
+
     /**
      * Offset the rectangle to a specific (left, top) position,
      * keeping its width and height the same.
@@ -375,6 +379,10 @@ public final class Rect implements Parcelable {
     public boolean contains(int x, int y) {
         return left < right && top < bottom  // check for empty first
                 && x >= left && x < right && y >= top && y < bottom;
+    }
+
+    public boolean contains(float x, float y) {
+        return contains((int) x, (int)y);
     }
 
     /**

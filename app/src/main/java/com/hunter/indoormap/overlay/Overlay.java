@@ -51,11 +51,6 @@ public abstract class Overlay {
 	// Constructors
 	// ===========================================================
 
-	/** Use {@link #Overlay()} instead */
-	@Deprecated
-	public Overlay(final Context ctx) {
-	}
-
 	public Overlay() {
 	}
 

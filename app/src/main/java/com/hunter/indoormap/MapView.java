@@ -8,9 +8,11 @@ import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.widget.RelativeLayout;
 
+import com.hunter.indoormap.beans.GPoint;
 import com.hunter.indoormap.beans.Point;
 import com.hunter.indoormap.beans.Rect;
 import com.hunter.indoormap.data.DataSource;
@@ -32,6 +34,8 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
 
     private DataSource mDataSource;
     private int floor;
+
+    private IMyLocationController mIMyLocationController;
 
     private int mapScrollX;
     private int mapScrollY;
@@ -72,6 +76,7 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
 
     public void mapScrollBy(int dx, int dy) {
         matrix.postTranslate(-dx, -dy);
+        matrix.invert(invertMatrix);
         if (Looper.getMainLooper() == Looper.myLooper()) {
             invalidate();
         } else {
@@ -129,6 +134,14 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
         this.mDataSource = mDataSource;
     }
 
+    public IMyLocationController getMyLocationController() {
+        return mIMyLocationController;
+    }
+
+    public void setMyLocationController(IMyLocationController mIMyLocationController) {
+        this.mIMyLocationController = mIMyLocationController;
+    }
+
     public int getFloor() {
         return floor;
     }
@@ -177,6 +190,7 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
             return true;
         }
 
+
 //        rotateTouchEvent(event);
 
         if (this.getOverlayManager().onTouchEvent(event, this)) {
@@ -198,18 +212,23 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
     }
 
     @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (getOverlayManager().onKeyDown(keyCode, event, this)) {
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
 
-        Rect fBounds = getDataSource().getFloorMap(floor).getBounds();
-        Log.i(TAG, "fBounds: " + fBounds);
-        scale = getWidth()/fBounds.width();
-        matrix = new Matrix();
-        float halfWidth = getWidth()>>1;
-        float halfHeight = getHeight()>>1;
-        matrix.preScale(scale, scale, fBounds.centerX(), fBounds.centerY());
-        matrix.postTranslate(halfWidth-fBounds.centerX(), halfHeight-fBounds.centerY());
-        matrix.invert(invertMatrix);
+        if (new Matrix().equals(matrix)) {
+            Rect fBounds = getDataSource().getFloorMap(floor).getBounds();
+            Log.i(TAG, "fBounds: " + fBounds);
+            scale = getWidth()/fBounds.width();
+            setMapCenter(new Point(fBounds.centerX(), fBounds.centerY()));
+        }
     }
 
     @Override
@@ -251,6 +270,28 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
     @Override
     public void selectObject(Object obj, MultiTouchController.PointInfo touchPoint) {
 
+    }
+
+    public void setMapCenter(GPoint gPoint) {
+        if (getDataSource().getFloorMap(gPoint.z) != null) {
+            setFloor(gPoint.z);
+            setMapCenter((Point)gPoint);
+        }
+    }
+
+    private void setMapCenter(Point point) {
+        float halfWidth = getWidth()>>1;
+        float halfHeight = getHeight()>>1;
+        matrix.setScale(scale, scale, point.x, point.y);
+        matrix.postRotate(rotate, point.x, point.y);
+        matrix.postTranslate(halfWidth-point.x, halfHeight-point.y);
+        matrix.invert(invertMatrix);
+        invalidate();
+    }
+
+    public GPoint getMapCenter() {
+        Rect rect = getMapRect();
+        return new GPoint(rect.centerX(), rect.centerY(), getFloor());
     }
 
     private class MapViewGestureDetectorListener implements GestureDetector.OnGestureListener {

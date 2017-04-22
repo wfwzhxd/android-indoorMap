@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">IndoorMap</string>
+    <string name="set_as_myLocation">设为我的位置</string>
+    <string name="go_here">去这里</string>
 </resources>
