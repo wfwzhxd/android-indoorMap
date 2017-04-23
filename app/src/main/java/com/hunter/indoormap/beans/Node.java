@@ -53,7 +53,7 @@ public class Node extends MObj {
 
     @Override
     public boolean contains(Point point) {
-        return shapeInfo.contains(CoordinateUtils.relativeCoord(xyz, point));
+        return getBounds().contains(point.x, point.y) && shapeInfo.contains(CoordinateUtils.relativeCoord(xyz, point));
     }
 
     public float getArea() {

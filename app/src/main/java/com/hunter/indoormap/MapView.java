@@ -33,7 +33,7 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
     private OverlayManager mOverlayManager;
 
     private DataSource mDataSource;
-    private int floor;
+    private int floor = Integer.MIN_VALUE;
 
     private IMyLocationController mIMyLocationController;
 
@@ -147,7 +147,11 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
     }
 
     public void setFloor(int floor) {
-        this.floor = floor;
+        if (getDataSource().getFloorMap(floor) != null && this.floor != floor) {
+            this.floor = floor;
+            matrix = new Matrix();
+            invalidate();
+        }
     }
 
     @Override
@@ -172,6 +176,13 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
 
     @Override
     protected void dispatchDraw(final Canvas c) {
+        if (new Matrix().equals(matrix)) {
+            Rect fBounds = getDataSource().getFloorMap(floor).getBounds();
+            Log.i(TAG, "fBounds: " + fBounds);
+            scale = getWidth()/fBounds.width();
+            setMapCenter(new Point(fBounds.centerX(), fBounds.centerY()));
+        }
+
         // Save the current canvas matrix
         c.save();
 		/* Draw all Overlays. */
@@ -223,12 +234,7 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
 
-        if (new Matrix().equals(matrix)) {
-            Rect fBounds = getDataSource().getFloorMap(floor).getBounds();
-            Log.i(TAG, "fBounds: " + fBounds);
-            scale = getWidth()/fBounds.width();
-            setMapCenter(new Point(fBounds.centerX(), fBounds.centerY()));
-        }
+
     }
 
     @Override

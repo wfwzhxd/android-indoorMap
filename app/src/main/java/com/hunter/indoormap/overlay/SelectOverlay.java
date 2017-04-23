@@ -141,7 +141,7 @@ public class SelectOverlay extends Overlay {
     @Override
     public boolean onTouchEvent(MotionEvent event, MapView mapView) {
         if (isPanelOpened) {
-            Rect rect = new Rect(view.getLeft(), view.getTop(), view.getRight(), view.getBottom()).offset(mapView.getX(), mapView.getY());
+            Rect rect = new Rect(view.getLeft(), view.getTop(), view.getRight(), view.getBottom());
             if (rect.contains(event.getX(), event.getY())) {
                 return true;
             }

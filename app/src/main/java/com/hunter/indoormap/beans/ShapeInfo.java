@@ -98,6 +98,9 @@ public class ShapeInfo {
          * @return
          */
         public boolean contains(Point point) {
+            if (points.length < 3 || !getBounds().contains(point.x, point.y)) {
+                return false;
+            }
             boolean flag = false;
             float px = point.x;
             float py = point.y;

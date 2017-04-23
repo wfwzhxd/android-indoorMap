@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 
 import com.hunter.indoormap.data.TxtFileDataSource;
+import com.hunter.indoormap.overlay.FloorSelectOverlay;
 import com.hunter.indoormap.overlay.MyLocationOverlay;
 import com.hunter.indoormap.overlay.NodeOverlay;
 import com.hunter.indoormap.overlay.RotateIndicatorOverlay;
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
         mapView.getOverlayManager().add(myLocationOverlay);
         mapView.getOverlayManager().add(new SelectOverlay(mapView));
         mapView.getOverlayManager().add(new RotateIndicatorOverlay(getResources()));
+        mapView.getOverlayManager().add(new FloorSelectOverlay(mapView));
         mapView.setDataSource(new TxtFileDataSource(getAssets(), "data_test"));
         mapView.setFloor(1);
         mapView.setMyLocationController(myLocationOverlay);
