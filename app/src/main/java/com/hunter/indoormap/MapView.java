@@ -154,8 +154,7 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
         }
     }
 
-    @Override
-    public Matrix getMatrix() {
+    public Matrix getMapMatrix() {
         return matrix;
     }
 

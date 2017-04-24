@@ -39,7 +39,7 @@ public class NodeOverlay extends Overlay {
     public void draw(Canvas c, MapView mv) {
 
         List<Node> nodes = mv.getDataSource().getNodes(mv.getMapRect(), mv.getFloor());
-        Matrix matrix = mv.getMatrix();
+        Matrix matrix = mv.getMapMatrix();
         for (Node node : nodes) {
             if (!node.isShow()) {
                 continue;

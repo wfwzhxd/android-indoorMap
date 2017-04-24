@@ -35,7 +35,7 @@ public class WayOverlay extends Overlay {
     @Override
     public void draw(Canvas c, MapView mv) {
         List<Way> ways = mv.getDataSource().getWays(mv.getMapRect(), mv.getFloor());
-        Matrix matrix = mv.getMatrix();
+        Matrix matrix = mv.getMapMatrix();
         Point[] points;
         Point mPoint;
         ShapeInfo[] shapeInfos;

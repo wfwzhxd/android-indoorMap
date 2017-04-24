@@ -52,7 +52,7 @@ public class SelectOverlay extends Overlay {
     @Override
     public void draw(Canvas c, MapView mv) {
         if (node != null) {
-            point = MatrixUtils.applyMatrix(node.getXyz(), mv.getMatrix());
+            point = MatrixUtils.applyMatrix(node.getXyz(), mv.getMapMatrix());
             point.offset(-rect.width()>>1, -rect.height());
             rect2 = new Rect(rect).offset((int)point.x, (int)point.y).toRect();
             c.drawBitmap(bitmap, null, rect2, paint);
