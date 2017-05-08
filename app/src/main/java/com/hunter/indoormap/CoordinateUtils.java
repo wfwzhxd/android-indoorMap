@@ -1,6 +1,7 @@
 package com.hunter.indoormap;
 
 
+import com.hunter.indoormap.beans.GPoint;
 import com.hunter.indoormap.beans.Point;
 
 /**
@@ -49,6 +50,10 @@ public class CoordinateUtils {
 
     public static float calDistance(Point start, Point end) {
         return (float) Math.sqrt(Math.pow(end.x-start.x, 2) + Math.pow(end.y-start.y, 2));
+    }
+
+    public static float calDistance(GPoint start, GPoint end) {
+        return (float) Math.sqrt(Math.pow(end.x-start.x, 2) + Math.pow(end.y-start.y, 2) + Math.pow(end.z-start.z, 2));
     }
 
     public static float calDegree(Point start, Point end) {

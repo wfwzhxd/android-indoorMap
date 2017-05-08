@@ -18,7 +18,7 @@ public class TestUtils {
         return new GPoint(x, y);
     }
 
-    public static GPoint gp(int x, int y, int z) {
+    public static GPoint gp(float x, float y, int z) {
         return new GPoint(x, y, z);
     }
 

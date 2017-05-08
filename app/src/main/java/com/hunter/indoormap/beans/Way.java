@@ -17,11 +17,15 @@ public class Way extends MObj {
     public static class WayNode extends GPoint{
         float wide;
 
-        public WayNode(int x, int y, float wide) {
+        public WayNode(GPoint gPoint, float wide) {
+            this(gPoint.x, gPoint.y, gPoint.z, wide);
+        }
+
+        public WayNode(float x, float y, float wide) {
             this(x, y, 0, wide);
         }
 
-        public WayNode(int x, int y, int z, float wide) {
+        public WayNode(float x, float y, int z, float wide) {
             super(x, y, z);
             this.wide = wide;
         }
