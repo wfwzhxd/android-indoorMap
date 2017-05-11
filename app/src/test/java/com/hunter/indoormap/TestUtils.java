@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
  */
 
 public class TestUtils {
-    public static Point p(int x, int y) {
+    public static Point p(float x, float y) {
         return new Point(x, y);
     }
 

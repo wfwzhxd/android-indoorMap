@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.hunter.indoormap.MapView;
 import com.hunter.indoormap.R;
+import com.hunter.indoormap.beans.Floor;
 import com.hunter.indoormap.beans.Rect;
 
 import java.util.ArrayList;
@@ -42,8 +43,8 @@ public class FloorSelectOverlay extends Overlay {
 
     @Override
     public void draw(Canvas c, MapView mv) {
-        if (!new String(mv.getFloor()+"").equals(textView.getText())) {
-            textView.setText(mv.getFloor()+"楼");
+        if (!new String(mv.getLevel()+"").equals(textView.getText())) {
+            textView.setText(mv.getLevel()+"F");
         }
     }
 
@@ -59,15 +60,18 @@ public class FloorSelectOverlay extends Overlay {
     private void showPopWindow(final MapView mapView) {
         final ListPopupWindow popupWindow = new ListPopupWindow(mapView.getContext());
         final List list = new ArrayList<String>();
-        final int[] floors = mapView.getDataSource().getFloors();
+        final Floor[] floors = mapView.getDataSource().getFloors(null);
+        if (floors == null || floors.length == 0) {
+            return;
+        }
         for (int i=0; i<floors.length; i++) {
-            list.add(floors[i]+"楼");
+            list.add(floors[i].getZ()+"F");
         }
         popupWindow.setAdapter(new ArrayAdapter(mapView.getContext(), R.layout.simple_list_item_1, list));
         popupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mapView.setFloor(floors[position]);
+                mapView.setLevel(floors[position].getZ());
                 popupWindow.dismiss();
             }
         });

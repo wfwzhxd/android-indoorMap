@@ -7,9 +7,9 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.Log;
 
-import com.hunter.indoormap.CoordinateUtils;
 import com.hunter.indoormap.MapView;
 import com.hunter.indoormap.MatrixUtils;
+import com.hunter.indoormap.beans.Edges;
 import com.hunter.indoormap.beans.Point;
 import com.hunter.indoormap.beans.Way;
 
@@ -28,26 +28,31 @@ public class WayOverlay extends Overlay {
     public WayOverlay() {
         fillPaint = new Paint();
         fillPaint.setStyle(Paint.Style.FILL);
-        fillPaint.setColor(Color.GRAY);
+        fillPaint.setColor(Color.RED);
     }
 
     @Override
     public void draw(Canvas c, MapView mv) {
-        List<Way> ways = mv.getDataSource().getWays(mv.getMapRect(), mv.getFloor());
+        List<Way> ways = mv.getDataSource().getWays(mv.getMapRect(), mv.getLevel());
+        Log.d(TAG, "ways is null");
+        if (ways == null) {
+            Log.d(TAG, "ways is null");
+            return;
+        }
+        Log.d(TAG, ways.toString());
         Matrix matrix = mv.getMapMatrix();
+        Edges edges;
         Point[] points;
-        Point mPoint;
-        /*
-        ShapeInfo[] shapeInfos;
         for (Way way : ways) {
-            if (!way.isShow()) {
-                continue;
-            }
-            shapeInfos = way.getShapeInfos();
-            for (int i = 0; i < shapeInfos.length; i++) {
-                points = shapeInfos[i].getPoints();
-                points = CoordinateUtils.absoluteCoord(way.getWayNodes()[i], points);
-                MatrixUtils.applyMatrix(points, matrix);
+            for (Way.WayLine wayLine : way.getWayLines()) {
+                edges = wayLine.getEdges();
+                if (edges == null) {
+                    Log.d(TAG, "edges is null " + wayLine);
+                    continue;
+                }
+                Log.d(TAG, "draw wayLine " + wayLine);
+                points = edges.getPoints();
+                points = MatrixUtils.applyMatrix(points, matrix);
                 Path edge = new Path();
                 edge.moveTo(points[points.length-1].x, points[points.length-1].y);
                 for (Point point : points){
@@ -55,11 +60,6 @@ public class WayOverlay extends Overlay {
                 }
                 c.drawPath(edge, fillPaint);
             }
-            for (Way.WayNode wayNode : way.getWayNodes()) {
-                mPoint = MatrixUtils.applyMatrix(wayNode, matrix);
-                Log.i(TAG, mPoint.toString());
-                c.drawCircle(mPoint.x, mPoint.y, matrix.mapRadius(wayNode.getWide()/2), fillPaint);
-            }
-        }*/
+        }
     }
 }

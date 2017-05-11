@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
 
+import com.hunter.indoormap.data.DxfDataSource;
 import com.hunter.indoormap.overlay.FloorSelectOverlay;
 import com.hunter.indoormap.overlay.MyLocationOverlay;
 import com.hunter.indoormap.overlay.NodeOverlay;
@@ -11,6 +12,9 @@ import com.hunter.indoormap.overlay.QRScannerOverlay;
 import com.hunter.indoormap.overlay.RotateIndicatorOverlay;
 import com.hunter.indoormap.overlay.SelectOverlay;
 import com.hunter.indoormap.overlay.WayOverlay;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,8 +26,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mapView = (MapView) findViewById(R.id.map_view);
-//        mapView.setDataSource(new TxtFileDataSource(getAssets(), "data_test"));
-        mapView.setFloor(1);
+        try {
+            InputStream inputStream = getAssets().open("hospital.dxf");
+            mapView.setDataSource(new DxfDataSource(inputStream));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mapView.setLevel(1);
 
         mapView.getOverlayManager().add(new WayOverlay());
         mapView.getOverlayManager().add(new NodeOverlay());

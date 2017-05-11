@@ -20,6 +20,8 @@ import com.hunter.indoormap.beans.Node;
 import com.hunter.indoormap.beans.Point;
 import com.hunter.indoormap.beans.Rect;
 
+import java.util.List;
+
 
 /**
  * Created by hunter on 4/21/17.
@@ -67,15 +69,19 @@ public class SelectOverlay extends Overlay {
         Point point = new Point(e.getX(), e.getY());
         boolean shouleInvalidate = this.node == null ? false : true;
         this.node = null;
-        for (Node node : mapView.getDataSource().getNodes(mapView.getMapRect(), mapView.getFloor())) {
-            /*
-            if (!node.isShow() || !node.contains(point)) {
+        List<Node> nodes = mapView.getDataSource().getNodes(mapView.getMapRect(), mapView.getLevel());
+        if (nodes == null) {
+            return false;
+        }
+        for (Node node : nodes) {
+
+            if (!node.contains(point)) {
                 continue;
             }
             if (this.node == null || this.node.getArea() > node.getArea()) {
                 this.node = node;
                 shouleInvalidate = true;
-            }*/
+            }
         }
         Log.i(TAG, "select node : " + node);
         if (node != null) {

@@ -7,11 +7,10 @@ package com.hunter.indoormap.beans;
 public class MObj extends Tagger{
     int id;
     String name;
-//    boolean show;
     transient Rect bounds;
 
     public MObj() {
-        this(-1, null);
+        this(ID.NONE_ID, null);
     }
 
     public MObj(int id) {

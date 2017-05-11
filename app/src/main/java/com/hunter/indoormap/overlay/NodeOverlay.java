@@ -5,10 +5,11 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.util.Log;
 
-import com.hunter.indoormap.CoordinateUtils;
 import com.hunter.indoormap.MapView;
 import com.hunter.indoormap.MatrixUtils;
+import com.hunter.indoormap.beans.Edges;
 import com.hunter.indoormap.beans.Node;
 import com.hunter.indoormap.beans.Point;
 
@@ -37,14 +38,21 @@ public class NodeOverlay extends Overlay {
 
     @Override
     public void draw(Canvas c, MapView mv) {
-        /*
-        List<Node> nodes = mv.getDataSource().getNodes(mv.getMapRect(), mv.getFloor());
+        List<Node> nodes = mv.getDataSource().getNodes(mv.getMapRect(), mv.getLevel());
+        if (nodes == null) {
+            Log.d(TAG, "nodes is null");
+            return;
+        }
         Matrix matrix = mv.getMapMatrix();
         for (Node node : nodes) {
+            Edges edges = node.getEdges();
+            if (edges == null) {
+                Log.d(TAG, "edges is null " + node);
+                continue;
+            }
             Path edge = new Path();
-            Point[] points = node.getShapeInfo().getPoints();
-            points = CoordinateUtils.absoluteCoord(node.getXyz(), points);
-            MatrixUtils.applyMatrix(points, matrix);
+            Point[] points = edges.getPoints();
+            points = MatrixUtils.applyMatrix(points, matrix);
             edge.moveTo(points[points.length-1].x, points[points.length-1].y);
             for (Point point : points){
                 edge.lineTo(point.x, point.y);
@@ -52,6 +60,5 @@ public class NodeOverlay extends Overlay {
             c.drawPath(edge, fillPaint);
             c.drawPath(edge, strokePaint);
         }
-        */
     }
 }

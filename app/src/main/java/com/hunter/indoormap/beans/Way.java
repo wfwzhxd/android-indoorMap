@@ -1,5 +1,8 @@
 package com.hunter.indoormap.beans;
 
+import com.hunter.indoormap.CoordinateUtils;
+import com.hunter.indoormap.Log;
+
 import java.util.Arrays;
 
 /**
@@ -50,18 +53,27 @@ public class Way extends MObj {
 
         public WayLine(WayNode start, WayNode end) {
             super(start, end);
+            setStart(start);
+            setEnd(end);
         }
 
         @Override
         public void setStart(WayNode start) {
             super.setStart(start);
-            edges = null;
+            calculateEdges();
         }
 
         @Override
         public void setEnd(WayNode end) {
             super.setEnd(end);
-            edges = null;
+            calculateEdges();
+        }
+
+        public Edges getEdges() {
+            if (edges == null) {
+                calculateEdges();
+            }
+            return edges;
         }
 
         public boolean contains(Point p) {
@@ -72,29 +84,34 @@ public class Way extends MObj {
         @Override
         public boolean contains(GPoint gPoint) {
             if (edges == null) {
-                calculateEdges(getStart(), getEnd());
+                calculateEdges();
             }
-            return edges.contains(gPoint);
+            return edges == null ? super.contains(gPoint) : edges.contains(gPoint);
         }
 
-        private void calculateEdges(WayNode start, WayNode end) {
-            //TODO implements
-            /*
+        private void calculateEdges() {
+            WayNode start = getStart();
+            WayNode end = getEnd();
+            if (start.wide <= 0 || end.wide <= 0) {
+                return;
+            }
             float degree = CoordinateUtils.calDegree(start, end);
-            System.out.println(start + " " + end + " degree " + degree);
+            android.util.Log.d("Way", start + " " + end + " degree " + degree);
             Point endPoint = CoordinateUtils.rotateAtPoint(start, end, -degree, false);
             endPoint = CoordinateUtils.relativeCoord(start, endPoint);
-            int startHalfWidth = Math.round(start.wide/2);
-            Point spt = CoordinateUtils.pointOffset(Point.ORIGIN, 0, startHalfWidth);
-            Point spb = CoordinateUtils.pointOffset(Point.ORIGIN, 0, -startHalfWidth);
-            int endHalfWidth = Math.round(end.wide/2);
+            float startHalfWidth = start.wide/2;
+            Point origin = new Point(0f, 0f);
+            Point spt = CoordinateUtils.pointOffset(origin, 0, startHalfWidth);
+            Point spb = CoordinateUtils.pointOffset(origin, 0, -startHalfWidth);
+            float endHalfWidth = end.wide/2;
             Point ept = CoordinateUtils.pointOffset(endPoint, 0, endHalfWidth);
             Point epb = CoordinateUtils.pointOffset(endPoint, 0, -endHalfWidth);
             Point[] points = new Point[]{spt, spb, epb, ept};
-            ShapeInfo.Shape shape = new ShapeInfo.Shape(-1, points);
-            shapeInfo = new ShapeInfo(shape, degree);*/
+            points = CoordinateUtils.absoluteCoord(start, CoordinateUtils.rotateAtPoint(origin, points, degree, true));
+            edges = new Edges(points);
+            Log.o(edges);
+            return;
         }
-
 
     }
 

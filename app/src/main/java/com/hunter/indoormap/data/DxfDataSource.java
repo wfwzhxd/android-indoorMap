@@ -16,6 +16,7 @@ import static com.hunter.indoormap.beans.Way.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,6 +36,7 @@ public class DxfDataSource extends FileDataSource implements RouterDataSource{
     public static final String DATAFILE_ENCODING = "UTF-8";
 
     private File dataFile;
+    private InputStream inputStream;
     private ARouterDataSource aRouterDataSource;
 
     public DxfDataSource(File dataFile) {
@@ -42,6 +44,14 @@ public class DxfDataSource extends FileDataSource implements RouterDataSource{
             throw new IllegalArgumentException("Invalid file: " + dataFile);
         }
         this.dataFile = dataFile;
+    }
+
+    public DxfDataSource(InputStream inputStream) {
+        if (inputStream == null) {
+            throw new IllegalArgumentException("InputStream Mustn't be NULL");
+        }
+        this.inputStream = inputStream;
+        loadData();
     }
 
     private LineIterator lineIterator;
@@ -53,7 +63,11 @@ public class DxfDataSource extends FileDataSource implements RouterDataSource{
 
     public boolean parseDxf() {
         try {
-            lineIterator = new LineIterator(dataFile);
+            if (inputStream == null) {
+                lineIterator = new LineIterator(dataFile);
+            } else {
+                lineIterator = new LineIterator(inputStream);
+            }
             nodes = new LinkedList<>();
             edges = new LinkedHashMap<>();
             ways = new LinkedHashMap<>();

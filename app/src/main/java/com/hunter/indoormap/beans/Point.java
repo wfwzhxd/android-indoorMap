@@ -29,12 +29,6 @@ public class Point {
         return this;
     }
 
-    public Point scale(float scale) {
-        x *= scale;
-        y *= scale;
-        return this;
-    }
-
     public Point offset(int dx, int dy) {
         this.x += dx;
         this.y += dy;

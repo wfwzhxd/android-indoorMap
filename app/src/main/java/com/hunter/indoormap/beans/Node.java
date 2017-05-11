@@ -40,18 +40,13 @@ public class Node extends MObj {
         bounds = null;
     }
 
-    @Override
-    public boolean ifContains(Point point) {
-        return edges.contains(point);
-    }
-
     public float getArea() {
         return edges == null ? 0 : edges.getArea();
     }
 
     @Override
     public boolean contains(Point point) {
-        return point.equals(xyz);
+        return edges == null ? point.equals(xyz) : edges.contains(point);
     }
 
     @Override

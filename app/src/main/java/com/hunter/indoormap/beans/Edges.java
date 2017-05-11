@@ -78,7 +78,6 @@ public class Edges extends Tagger{
         boolean flag = false;
         float px = point.x;
         float py = point.y;
-        System.out.println(px + "," + py);
         int i = 0;
         int j = points.length - 1;
         for (; i < points.length; j = i, i++) {
@@ -86,9 +85,8 @@ public class Edges extends Tagger{
             float sy = points[i].y;
             float tx = points[j].x;
             float ty = points[j].y;
-            System.out.println(i + "： " + sx + ", "+ sy + ", "+ tx + ", "+ ty);
             if ((sx == px && sy == py) || (tx == px && ty == py)) {
-                System.out.println(i + "顶点重合");
+//                System.out.println(i + "顶点重合");
                 return true;
             }
             if ((sy < py && ty >= py) || (sy >= py && ty < py)) {
@@ -96,18 +94,17 @@ public class Edges extends Tagger{
                 double x = sx + (py - sy) * (tx - sx) / (ty - sy);
                 // 点在多边形的边上
                 if (x == px) {
-                    System.out.println(i + "在边上");
+//                    System.out.println(i + "在边上");
                     return true;
                 }
 
                 // 射线穿过多边形的边界
                 if (x > px) {
-                    System.out.println(i + "穿过边界");
+//                    System.out.println(i + "穿过边界");
                     flag = !flag;
                 }
             }
         }
-        System.out.println("return end");
         return flag;
     }
 

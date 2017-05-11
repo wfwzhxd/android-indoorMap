@@ -1,16 +1,21 @@
 package com.hunter.indoormap.data;
 
+import com.hunter.indoormap.beans.Floor;
 import com.hunter.indoormap.beans.MObj;
 import com.hunter.indoormap.beans.Node;
 import com.hunter.indoormap.beans.Rect;
 import com.hunter.indoormap.beans.Way;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by hunter on 4/15/17.
@@ -22,7 +27,13 @@ public abstract class FileDataSource implements DataSource {
     /* Map<floor, List<Way>> */
     protected final Map<Integer, LinkedList<Way>> ways;
 
-    int[] floors;
+    private Floor[] floors;
+    private final Comparator<Floor> floorComparator = new Comparator<Floor>() {
+        @Override
+        public int compare(Floor o1, Floor o2) {
+            return o1.getZ() - o2.getZ();
+        }
+    };
 
     private final MobjGraper<Node> nodeGraper;
     private final MobjGraper<Way> wayGraper;
@@ -32,7 +43,6 @@ public abstract class FileDataSource implements DataSource {
     public FileDataSource() {
         nodes = new LinkedHashMap<>();
         ways = new LinkedHashMap<>();
-//        floorMaps = new LinkedList<>();
 
         nodeGraper = new MobjGraper<>(nodes);
         wayGraper = new MobjGraper<>(ways);
@@ -40,11 +50,41 @@ public abstract class FileDataSource implements DataSource {
 
     public final synchronized void loadData() {
         if (!dataLoaded && actualLoadData()) {
+            generateFloors();
             dataLoaded = true;
         }
     }
 
     protected abstract boolean actualLoadData();
+
+
+    private void generateFloors() {
+        Set<Integer> levels = new HashSet<>();
+        levels.addAll(ways.keySet());
+        levels.addAll(nodes.keySet());
+        floors = new Floor[levels.size()];
+        int index = 0;
+        for (Integer level : levels) {
+            floors[index++] = generateFloors(level);
+        }
+        Arrays.sort(floors, floorComparator);
+    }
+
+    private Floor generateFloors(Integer level) {
+        if (!ways.containsKey(level) && !nodes.containsKey(level)) {
+            return null;
+        }
+        Rect bounds = new Rect(Float.MAX_VALUE, Float.MAX_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
+        // nodes
+        for (Node node : nodes.get(level)) {
+            bounds = Rect.mixMax(bounds, node.getBounds());
+        }
+        // ways
+        for (Way way : ways.get(level)) {
+            bounds = Rect.mixMax(bounds, way.getBounds());
+        }
+        return new Floor(level, bounds);
+    }
 
     private void checkDataLoaded() {
         if (!dataLoaded) {
@@ -57,33 +97,17 @@ public abstract class FileDataSource implements DataSource {
     }
 
     @Override
-    public int[] getFloors() {
-        //TODO implements
-        /*
+    public Floor[] getFloors(Integer level) {
         checkDataLoaded();
-        if (floors == null) {
-            floors = new int[floorMaps.size()];
-            int i = 0;
-            Iterator<FloorMap> iterator = floorMaps.iterator();
-            while (iterator.hasNext()) {
-                floors[i++] = iterator.next().getZ();
-            }
-            Arrays.sort(floors);
+        if (level == null) {
+            return Arrays.copyOf(floors, floors.length);
         }
-        return Arrays.copyOf(floors, floors.length);*/
+        int index = Arrays.binarySearch(floors, new Floor(level, null), floorComparator);
+        if (index>-1 && index<floors.length) {
+            return new Floor[]{floors[index]};
+        }
         return null;
     }
-    /*
-    @Override
-    public FloorMap getFloorMap(int floor) {
-        checkDataLoaded();
-        for (FloorMap f : floorMaps) {
-            if (floor == f.getZ()) {
-                return f;
-            }
-        }
-        return null;
-    }*/
 
     @Override
     public List<Node> getNodes(Rect region, Integer floor) {

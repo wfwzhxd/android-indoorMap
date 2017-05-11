@@ -12,6 +12,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.widget.RelativeLayout;
 
+import com.hunter.indoormap.beans.Floor;
 import com.hunter.indoormap.beans.GPoint;
 import com.hunter.indoormap.beans.Point;
 import com.hunter.indoormap.beans.Rect;
@@ -27,13 +28,14 @@ import java.util.List;
 
 public class MapView extends RelativeLayout implements MultiTouchController.MultiTouchObjectCanvas<Object>{
     public static final String TAG = MapView.class.getSimpleName();
+    private static final DataSource emptyDataSource = new DataSource.EmptyDataSource();
 
     private final GestureDetector mGestureDetector;
     private MultiTouchController<Object> multiTouchController;
     private OverlayManager mOverlayManager;
 
-    private DataSource mDataSource;
-    private int floor = Integer.MIN_VALUE;
+    private DataSource mDataSource = emptyDataSource;
+    private Floor floor;
 
     private IMyLocationController mIMyLocationController;
 
@@ -131,7 +133,15 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
     }
 
     public void setDataSource(DataSource mDataSource) {
-        this.mDataSource = mDataSource;
+        if (mDataSource != null) {
+            Floor[] floors = mDataSource.getFloors(null);
+            if (floors != null && floors.length > 0) {
+                floor = floors[0];
+            }
+            this.mDataSource = mDataSource;
+        } else {
+            this.mDataSource = emptyDataSource;
+        }
     }
 
     public IMyLocationController getMyLocationController() {
@@ -142,17 +152,20 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
         this.mIMyLocationController = mIMyLocationController;
     }
 
-    public int getFloor() {
-        return floor;
+    public int getLevel() {
+        return floor == null ? 0 : floor.getZ();
     }
 
-    public void setFloor(int floor) {
-        /*
-        if (getDataSource().getFloorMap(floor) != null && this.floor != floor) {
-            this.floor = floor;
+    public boolean setLevel(int level) {
+        Floor[] floors = getDataSource().getFloors(level);
+        if (floors != null && floors.length > 0 && this.floor != floors[0]) {
+            this.floor = floors[0];
             matrix = new Matrix();
+            matrix.invert(invertMatrix);
             invalidate();
-        }*/
+            return true;
+        }
+        return false;
     }
 
     public Matrix getMapMatrix() {
@@ -168,7 +181,7 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
     }
 
     public Rect getMapRect() {
-        RectF rectF = new Rect(0, 0, getWidth(), getHeight()).enlarge(1.1f).toRectF();
+        RectF rectF = new Rect(0, 0, getWidth(), getHeight())/*.enlarge(1.1f)*/.toRectF();
         invertMatrix.mapRect(rectF);
         Log.i(TAG, "mapRect " + rectF);
         return new Rect(rectF);
@@ -176,13 +189,14 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
 
     @Override
     protected void dispatchDraw(final Canvas c) {
-        if (new Matrix().equals(matrix)) {
-//            Rect fBounds = getDataSource().getFloorMap(floor).getBounds();
-            /*
+
+        if (floor != null && new Matrix().equals(matrix)) {
+            Rect fBounds = floor.getBounds();
             Log.i(TAG, "fBounds: " + fBounds);
             scale = getWidth()/fBounds.width();
-            setMapCenter(new Point(fBounds.centerX(), fBounds.centerY()));*/
+            setMapCenter(new Point(fBounds.centerX(), fBounds.centerY()));
         }
+        Log.i(TAG, "scale: " + scale);
 
         // Save the current canvas matrix
         c.save();
@@ -201,9 +215,6 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
 //            Log.d(MapView.TAG,"super handled touchEvent");
             return true;
         }
-
-
-//        rotateTouchEvent(event);
 
         if (this.getOverlayManager().onTouchEvent(event, this)) {
 //            Log.d(MapView.TAG,"Overlay handled touchEvent");
@@ -280,11 +291,9 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
     }
 
     public void setMapCenter(GPoint gPoint) {
-        /*
-        if (getDataSource().getFloorMap(gPoint.z) != null) {
-            setFloor(gPoint.z);
+        if (setLevel(gPoint.z)) {
             setMapCenter((Point)gPoint);
-        }*/
+        }
     }
 
     private void setMapCenter(Point point) {
@@ -299,7 +308,7 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
 
     public GPoint getMapCenter() {
         Rect rect = getMapRect();
-        return new GPoint(rect.centerX(), rect.centerY(), getFloor());
+        return new GPoint(rect.centerX(), rect.centerY(), getLevel());
     }
 
     private class MapViewGestureDetectorListener implements GestureDetector.OnGestureListener {

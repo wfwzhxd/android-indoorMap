@@ -17,11 +17,11 @@ public class MatrixUtils {
             ps[i*2+1] = points[i].y;
         }
         matrix.mapPoints(ps);
+        Point[] newPoints = new Point[points.length];
         for (int i=0; i<points.length; i++) {
-            points[i].x = ps[i*2];
-            points[i].y = ps[i*2+1];
+            newPoints[i] = new Point(ps[i*2], ps[i*2+1]);
         }
-        return points;
+        return newPoints;
     }
 
     public static Point applyMatrix(Point point, Matrix matrix) {

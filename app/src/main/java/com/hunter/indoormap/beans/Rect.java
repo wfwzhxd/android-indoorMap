@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
  * into the column and row described by its left and top coordinates, but not
  * those of its bottom and right.
  */
-public final class Rect implements Parcelable {
+public final class Rect {
     public int left;
     public int top;
     public int right;
@@ -611,49 +611,6 @@ public final class Rect implements Parcelable {
     }
 
     /**
-     * Write this rectangle to the specified parcel. To restore a rectangle from
-     * a parcel, use readFromParcel()
-     * @param out The parcel to write the rectangle's coordinates into
-     */
-    public void writeToParcel(Parcel out, int flags) {
-        out.writeInt(left);
-        out.writeInt(top);
-        out.writeInt(right);
-        out.writeInt(bottom);
-    }
-
-    public static final Parcelable.Creator<android.graphics.Rect> CREATOR = new Parcelable.Creator<android.graphics.Rect>() {
-        /**
-         * Return a new rectangle from the data in the specified parcel.
-         */
-        public android.graphics.Rect createFromParcel(Parcel in) {
-            android.graphics.Rect r = new android.graphics.Rect();
-            r.readFromParcel(in);
-            return r;
-        }
-
-        /**
-         * Return an array of rectangles of the specified size.
-         */
-        public android.graphics.Rect[] newArray(int size) {
-            return new android.graphics.Rect[size];
-        }
-    };
-
-    /**
-     * Set the rectangle's coordinates from the data stored in the specified
-     * parcel. To write a rectangle to a parcel, call writeToParcel().
-     *
-     * @param in The parcel to read the rectangle's coordinates from
-     */
-    public void readFromParcel(Parcel in) {
-        left = in.readInt();
-        top = in.readInt();
-        right = in.readInt();
-        bottom = in.readInt();
-    }
-
-    /**
      * Scales up the rect by the given scale.
      * @hide
      */
@@ -683,6 +640,22 @@ public final class Rect implements Parcelable {
 
     public android.graphics.Rect toRect() {
         return new android.graphics.Rect(left, top, right, bottom);
+    }
+
+    public static Rect mixMax(Rect rect1, Rect rect2) {
+        if (rect1 == null && rect2 == null) {
+            return null;
+        } else if (rect1 == null) {
+            return rect2;
+        } else if (rect2 == null) {
+            return rect1;
+        }
+        Rect r = new Rect();
+        r.left = Math.min(rect1.left, rect2.left);
+        r.top = Math.min(rect1.top, rect2.top);
+        r.right = Math.max(rect1.right, rect2.right);
+        r.bottom = Math.max(rect1.bottom, rect2.bottom);
+        return r;
     }
 
 }

@@ -15,26 +15,19 @@ import static org.junit.Assert.*;
  */
 
 public class ContainsTest {
-/*
-    @org.junit.Test
-    public void way_contains() {
-        Way.WayNode wayNode1 = new Way.WayNode(-2, -2, 2);
-        Way.WayNode wayNode2 = new Way.WayNode(2, 2, 2);
-        Way way = new Way(5, new Way.WayNode[]{wayNode1, wayNode2});
-        assertTrue(way.contains(p(-2, -2)));
-        assertTrue(way.contains(p(0, 0)));
-        // 由于四舍五入产生的误差，边界附近的点可能会得到错误的测试结果
-//        assertFalse(way.contains(p(-1, -3)));
-        assertFalse(way.contains(p(-1, 2)));
-//        System.out.println(way.getBounds());
-    }
 
     @org.junit.Test
-    public void shape_contains() {
-        ShapeInfo.Shape shape = new ShapeInfo.Shape(0, new Point[]{new Point(-2, -2), new Point(2, -2), new Point(2, 2), new Point(-2, 2)});
-        assertFalse(shape.contains(new Point(-2, 3)));
-        assertTrue(shape.contains(new Point(2, 2)));
-        assertTrue(shape.contains(new Point(0, 1)));
+    public void way_contains() {
+        Way.WayNode wayNode1 = new Way.WayNode(2, 2, 2);
+        Way.WayNode wayNode2 = new Way.WayNode(5, 2, 2);
+        Way way = new Way(5, new Way.WayLine[]{new Way.WayLine(wayNode1, wayNode2)});
+        assertTrue(way.contains(p(2, 2)));
+        assertTrue(way.contains(p(4.9f, 2)));
+        assertTrue(way.contains(p(3, 1.01f)));
+        assertTrue(way.contains(p(4, 2.99f)));
+        assertTrue(way.contains(p(3.58f, 2.164f)));
+        assertFalse(way.contains(p(5.1f, 2)));
+        // 由于四舍五入产生的误差，边界附近的点可能会得到错误的测试结果
     }
-*/
+
 }
