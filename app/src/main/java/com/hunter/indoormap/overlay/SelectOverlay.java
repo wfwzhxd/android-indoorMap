@@ -68,13 +68,14 @@ public class SelectOverlay extends Overlay {
         boolean shouleInvalidate = this.node == null ? false : true;
         this.node = null;
         for (Node node : mapView.getDataSource().getNodes(mapView.getMapRect(), mapView.getFloor())) {
+            /*
             if (!node.isShow() || !node.contains(point)) {
                 continue;
             }
             if (this.node == null || this.node.getArea() > node.getArea()) {
                 this.node = node;
                 shouleInvalidate = true;
-            }
+            }*/
         }
         Log.i(TAG, "select node : " + node);
         if (node != null) {

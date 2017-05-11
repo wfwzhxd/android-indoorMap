@@ -59,12 +59,13 @@ public class QRScannerOverlay extends Overlay implements ZXingScannerView.Result
     @Override
     public void handleResult(Result result) {
         try {
+            /*
             GPoint location = parseGPoint(result.getText());
             if (mapView.getDataSource().getFloorMap(location.z) != null) {
                 scannerDialogFragment.dismiss();
                 mapView.getMyLocationController().setMyLocation(location);
                 return;
-            }
+            }*/
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -147,11 +147,12 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
     }
 
     public void setFloor(int floor) {
+        /*
         if (getDataSource().getFloorMap(floor) != null && this.floor != floor) {
             this.floor = floor;
             matrix = new Matrix();
             invalidate();
-        }
+        }*/
     }
 
     public Matrix getMapMatrix() {
@@ -176,10 +177,11 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
     @Override
     protected void dispatchDraw(final Canvas c) {
         if (new Matrix().equals(matrix)) {
-            Rect fBounds = getDataSource().getFloorMap(floor).getBounds();
+//            Rect fBounds = getDataSource().getFloorMap(floor).getBounds();
+            /*
             Log.i(TAG, "fBounds: " + fBounds);
             scale = getWidth()/fBounds.width();
-            setMapCenter(new Point(fBounds.centerX(), fBounds.centerY()));
+            setMapCenter(new Point(fBounds.centerX(), fBounds.centerY()));*/
         }
 
         // Save the current canvas matrix
@@ -278,10 +280,11 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
     }
 
     public void setMapCenter(GPoint gPoint) {
+        /*
         if (getDataSource().getFloorMap(gPoint.z) != null) {
             setFloor(gPoint.z);
             setMapCenter((Point)gPoint);
-        }
+        }*/
     }
 
     private void setMapCenter(Point point) {

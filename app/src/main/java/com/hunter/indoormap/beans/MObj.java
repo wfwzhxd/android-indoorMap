@@ -4,24 +4,23 @@ package com.hunter.indoormap.beans;
  * Created by hunter on 3/25/17.
  */
 
-public abstract class MObj {
+public class MObj extends Tagger{
     int id;
     String name;
-    boolean show;
+//    boolean show;
     transient Rect bounds;
+
+    public MObj() {
+        this(-1, null);
+    }
 
     public MObj(int id) {
         this(id, null);
     }
 
     public MObj(int id, String name) {
-        this(id, name, true);
-    }
-
-    public MObj(int id, String name, boolean show) {
         this.id = id;
         this.name = name;
-        this.show = show;
     }
 
     public int getId() {
@@ -40,20 +39,21 @@ public abstract class MObj {
         this.name = name;
     }
 
-    public boolean isShow() {
-        return show;
-    }
-
-    public void setShow(boolean show) {
-        this.show = show;
-    }
-
     /**
      * Test whether the given {@link Point} is in the range of this Object.
      * @param point
      * @return
      */
-    public abstract boolean contains(Point point);
+    public boolean contains(Point point) {
+        if (getBounds().contains(point.x, point.y)) {
+            return ifContains(point);
+        }
+        return false;
+    }
+
+    protected boolean ifContains(Point point) {
+        return false;
+    };
 
     /**
      * Gets the bounding box of this <code>MObj</code>.

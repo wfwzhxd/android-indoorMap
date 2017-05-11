@@ -4,7 +4,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
 
-import com.hunter.indoormap.data.TxtFileDataSource;
 import com.hunter.indoormap.overlay.FloorSelectOverlay;
 import com.hunter.indoormap.overlay.MyLocationOverlay;
 import com.hunter.indoormap.overlay.NodeOverlay;
@@ -23,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mapView = (MapView) findViewById(R.id.map_view);
-        mapView.setDataSource(new TxtFileDataSource(getAssets(), "data_test"));
+//        mapView.setDataSource(new TxtFileDataSource(getAssets(), "data_test"));
         mapView.setFloor(1);
 
         mapView.getOverlayManager().add(new WayOverlay());

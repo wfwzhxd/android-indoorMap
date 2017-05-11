@@ -37,13 +37,10 @@ public class NodeOverlay extends Overlay {
 
     @Override
     public void draw(Canvas c, MapView mv) {
-
+        /*
         List<Node> nodes = mv.getDataSource().getNodes(mv.getMapRect(), mv.getFloor());
         Matrix matrix = mv.getMapMatrix();
         for (Node node : nodes) {
-            if (!node.isShow()) {
-                continue;
-            }
             Path edge = new Path();
             Point[] points = node.getShapeInfo().getPoints();
             points = CoordinateUtils.absoluteCoord(node.getXyz(), points);
@@ -55,6 +52,6 @@ public class NodeOverlay extends Overlay {
             c.drawPath(edge, fillPaint);
             c.drawPath(edge, strokePaint);
         }
-
+        */
     }
 }

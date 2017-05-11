@@ -1,18 +1,12 @@
 package com.hunter.indoormap.beans;
 
-import com.hunter.indoormap.CoordinateUtils;
-import com.hunter.indoormap.MathUtils;
-
 /**
  * Created by hunter on 3/25/17.
  */
 
 public class Node extends MObj {
     GPoint xyz;
-    ShapeInfo shapeInfo;
-
-    transient float lastScale;
-    transient Point scaledPoit;
+    Edges edges;    // may be null
 
     public Node(int id, GPoint xyz) {
         this(id, null, xyz, null);
@@ -22,10 +16,10 @@ public class Node extends MObj {
         this(id, name, xyz, null);
     }
 
-    public Node(int id, String name, GPoint xyz, ShapeInfo shapeInfo) {
+    public Node(int id, String name, GPoint xyz, Edges edges) {
         super(id, name);
-        this.xyz = xyz;
-        this.shapeInfo = shapeInfo;
+        setXyz(xyz);
+        setEdges(edges);
     }
 
     public GPoint getXyz() {
@@ -34,35 +28,35 @@ public class Node extends MObj {
 
     public void setXyz(GPoint xyz) {
         this.xyz = xyz;
+        bounds = null;
     }
 
-    public Point getScaledXyz(float scale) {
-        if (scaledPoit == null || !MathUtils.isEqual(lastScale, scale)) {
-            scaledPoit = new Point(xyz.x * scale, xyz.y * scale);
-        }
-        return scaledPoit;
+    public Edges getEdges() {
+        return edges;
     }
 
-    public ShapeInfo getShapeInfo() {
-        return shapeInfo;
+    public void setEdges(Edges edges) {
+        this.edges = edges;
+        bounds = null;
     }
 
-    public void setShapeInfo(ShapeInfo shapeInfo) {
-        this.shapeInfo = shapeInfo;
+    @Override
+    public boolean ifContains(Point point) {
+        return edges.contains(point);
+    }
+
+    public float getArea() {
+        return edges == null ? 0 : edges.getArea();
     }
 
     @Override
     public boolean contains(Point point) {
-        return getBounds().contains(point.x, point.y) && shapeInfo.contains(CoordinateUtils.relativeCoord(xyz, point));
-    }
-
-    public float getArea() {
-        return shapeInfo.getShape().getArea();
+        return point.equals(xyz);
     }
 
     @Override
     protected void calculateBounds() {
-        bounds = new Rect(shapeInfo.getBounds()).offset((int)xyz.x, (int)xyz.y);
+        bounds = edges == null ? new Rect(xyz.x-1, xyz.y-1, xyz.x+1, xyz.y+1) : edges.getBounds();
     }
 
     @Override
@@ -70,9 +64,8 @@ public class Node extends MObj {
         return "Node{" +
                 "id=" + id +
                 ", name=" + name +
-                ", show=" + show +
                 ", xyz=" + xyz +
-                ", shapeInfo=" + shapeInfo +
+                ", edges=" + edges +
                 '}';
     }
 }

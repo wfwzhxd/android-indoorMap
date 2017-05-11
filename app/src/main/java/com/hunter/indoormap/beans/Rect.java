@@ -86,6 +86,13 @@ public final class Rect implements Parcelable {
         this.bottom = bottom;
     }
 
+    public Rect(float left, float top, float right, float bottom) {
+        this.left = Math.round(left);
+        this.top = Math.round(top);
+        this.right = Math.round(right);
+        this.bottom = Math.round(bottom);
+    }
+
     /**
      * Create a new rectangle, initialized with the values in the specified
      * rectangle (which is left unmodified).

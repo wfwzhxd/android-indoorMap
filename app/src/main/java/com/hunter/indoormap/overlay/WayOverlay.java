@@ -11,7 +11,6 @@ import com.hunter.indoormap.CoordinateUtils;
 import com.hunter.indoormap.MapView;
 import com.hunter.indoormap.MatrixUtils;
 import com.hunter.indoormap.beans.Point;
-import com.hunter.indoormap.beans.ShapeInfo;
 import com.hunter.indoormap.beans.Way;
 
 import java.util.List;
@@ -38,6 +37,7 @@ public class WayOverlay extends Overlay {
         Matrix matrix = mv.getMapMatrix();
         Point[] points;
         Point mPoint;
+        /*
         ShapeInfo[] shapeInfos;
         for (Way way : ways) {
             if (!way.isShow()) {
@@ -60,6 +60,6 @@ public class WayOverlay extends Overlay {
                 Log.i(TAG, mPoint.toString());
                 c.drawCircle(mPoint.x, mPoint.y, matrix.mapRadius(wayNode.getWide()/2), fillPaint);
             }
-        }
+        }*/
     }
 }

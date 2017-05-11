@@ -1,13 +1,10 @@
 package com.hunter.indoormap.data;
 
-import com.hunter.indoormap.beans.FloorMap;
 import com.hunter.indoormap.beans.MObj;
 import com.hunter.indoormap.beans.Node;
 import com.hunter.indoormap.beans.Rect;
-import com.hunter.indoormap.beans.ShapeInfo;
 import com.hunter.indoormap.beans.Way;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -20,14 +17,11 @@ import java.util.Map;
  */
 
 public abstract class FileDataSource implements DataSource {
-    /* Map<id, Shape> */
-    protected final Map<Integer, ShapeInfo.Shape> shapes;
     /* Map<floor, List<Node>> */
     protected final Map<Integer, LinkedList<Node>> nodes;
     /* Map<floor, List<Way>> */
     protected final Map<Integer, LinkedList<Way>> ways;
 
-    protected final List<FloorMap> floorMaps;
     int[] floors;
 
     private final MobjGraper<Node> nodeGraper;
@@ -36,10 +30,9 @@ public abstract class FileDataSource implements DataSource {
     private boolean dataLoaded = false;
 
     public FileDataSource() {
-        shapes = new LinkedHashMap<>();
         nodes = new LinkedHashMap<>();
         ways = new LinkedHashMap<>();
-        floorMaps = new LinkedList<>();
+//        floorMaps = new LinkedList<>();
 
         nodeGraper = new MobjGraper<>(nodes);
         wayGraper = new MobjGraper<>(ways);
@@ -65,6 +58,8 @@ public abstract class FileDataSource implements DataSource {
 
     @Override
     public int[] getFloors() {
+        //TODO implements
+        /*
         checkDataLoaded();
         if (floors == null) {
             floors = new int[floorMaps.size()];
@@ -75,9 +70,10 @@ public abstract class FileDataSource implements DataSource {
             }
             Arrays.sort(floors);
         }
-        return Arrays.copyOf(floors, floors.length);
+        return Arrays.copyOf(floors, floors.length);*/
+        return null;
     }
-
+    /*
     @Override
     public FloorMap getFloorMap(int floor) {
         checkDataLoaded();
@@ -87,7 +83,7 @@ public abstract class FileDataSource implements DataSource {
             }
         }
         return null;
-    }
+    }*/
 
     @Override
     public List<Node> getNodes(Rect region, Integer floor) {

@@ -9,7 +9,6 @@ import java.io.PipedOutputStream;
  */
 
 public class Point {
-    public static final Point ORIGIN = new Point(0, 0); //原点
 
     public float x;
     public float y;
