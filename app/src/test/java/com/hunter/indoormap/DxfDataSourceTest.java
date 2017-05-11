@@ -23,8 +23,9 @@ public class DxfDataSourceTest {
     @Test
     public void parseDxfTest() {
         DxfDataSource dxfDataSource = new DxfDataSource(new File("/home/hunter/hospital.dxf"));
-        dxfDataSource.parseDxf();
-        Log.o(dxfDataSource.getEdges().toString());
+        dxfDataSource.loadData();
+        Log.o(dxfDataSource.getNodes(null, 0));
+        Log.o(dxfDataSource.getWays(null, 0));
     }
 
     @Test

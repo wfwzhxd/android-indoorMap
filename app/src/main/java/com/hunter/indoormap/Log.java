@@ -9,7 +9,7 @@ public class Log {
         System.out.println(tag + "\t" + msg);
     }
 
-    public static void o(String msg) {
+    public static void o(Object msg) {
         System.out.println(msg);
     }
 }

@@ -13,8 +13,8 @@ public class Line<P extends GPoint> {
     private MaxMin maxMin;
 
     public Line(P start, P end) {
-        this.start = start;
-        this.end = end;
+        setStart(start);
+        setEnd(end);
     }
 
     public P getStart() {
@@ -22,6 +22,9 @@ public class Line<P extends GPoint> {
     }
 
     public void setStart(P start) {
+        if (start == null) {
+            throw new IllegalArgumentException("start can't be null");
+        }
         this.start = start;
         maxMin = null;
     }
@@ -31,6 +34,9 @@ public class Line<P extends GPoint> {
     }
 
     public void setEnd(P end) {
+        if (end == null) {
+            throw new IllegalArgumentException("end can't be null");
+        }
         this.end = end;
         maxMin = null;
     }
@@ -49,7 +55,7 @@ public class Line<P extends GPoint> {
         if (e == null) {
             throw new NullPointerException();
         }
-        if (start.equals(e) || end.equals(e)) {
+        if (isStartOrEnd(e)) {
             return true;
         }
         if (maxMin == null) {
@@ -64,6 +70,10 @@ public class Line<P extends GPoint> {
             return MathUtils.isEqual((e.z-start.z)*(end.y-start.y), (end.z-start.z)*(e.y-start.y));
         }
         return false;
+    }
+
+    public boolean isStartOrEnd(GPoint e) {
+        return start.equals(e) || end.equals(e);
     }
 
     @Override

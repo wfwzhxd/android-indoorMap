@@ -5,6 +5,7 @@ import com.hunter.indoormap.Log;
 import com.hunter.indoormap.beans.Edges;
 import com.hunter.indoormap.beans.GPoint;
 import com.hunter.indoormap.beans.ID;
+import com.hunter.indoormap.beans.Line;
 import com.hunter.indoormap.beans.Node;
 import com.hunter.indoormap.beans.Point;
 import com.hunter.indoormap.beans.Way;
@@ -254,18 +255,6 @@ public class DxfDataSource extends FileDataSource implements RouterDataSource{
         nodes.add(node);
     }
 
-    public List<Node> getNodes() {
-        return nodes;
-    }
-
-    public Map<Integer, Edges> getEdges() {
-        return edges;
-    }
-
-    public Map<Integer, Way> getWays() {
-        return ways;
-    }
-
     private Edges getEdges(Integer id) {
         Edges edge = edges.get(id);
         if (edge == null) {
@@ -354,7 +343,7 @@ public class DxfDataSource extends FileDataSource implements RouterDataSource{
         } else {    //Edges
             addWayLine2Edge(getEdges(pointId), wayLine);
         }
-        Log.o("parseLine " + wayLine);
+//        Log.o("parseLine " + wayLine);
     }
 
     private boolean isEnd() {

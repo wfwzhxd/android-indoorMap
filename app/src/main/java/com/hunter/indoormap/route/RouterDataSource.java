@@ -40,7 +40,7 @@ public interface RouterDataSource {
             return this;
         }
 
-        public Wnode<E> clearNext() {
+        public Wnode<E> clearNexts() {
             next.clear();
             return this;
         }
@@ -53,7 +53,7 @@ public interface RouterDataSource {
             this.item = item;
         }
 
-        public List<Wnode<E>> getNext() {
+        public List<Wnode<E>> getNexts() {
             return Collections.unmodifiableList(next);
         }
 
@@ -65,11 +65,19 @@ public interface RouterDataSource {
             return item==null ? ((Wnode) obj).item == null : new GPoint(item).equals(((Wnode) obj).item);
         }
 
+        public List<E> getNextItems() {
+            List<E> items = new LinkedList<>();
+            for (Wnode<E> wnode : next) {
+                items.add(wnode.item);
+            }
+            return items;
+        }
+
         @Override
         public String toString() {
             return "Wnode{" +
                     "item=" + item +
-                    ", next=" + next +
+                    ", next=" + getNextItems() +
                     '}';
         }
     }
