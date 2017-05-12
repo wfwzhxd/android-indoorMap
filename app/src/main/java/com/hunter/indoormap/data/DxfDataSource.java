@@ -32,12 +32,14 @@ import java.util.Set;
  */
 
 public class DxfDataSource extends FileDataSource implements RouterDataSource{
+    public static final String TAG = DxfDataSource.class.getSimpleName();
 
     public static final String DATAFILE_ENCODING = "UTF-8";
 
     private File dataFile;
     private InputStream inputStream;
     private ARouterDataSource aRouterDataSource;
+    private boolean switchAxes = true;  // switch between "left-handed set of axes" and "right-handed set of axes"
 
     public DxfDataSource(File dataFile) {
         if (dataFile == null || dataFile.isDirectory() || !dataFile.canRead()) {
@@ -51,7 +53,6 @@ public class DxfDataSource extends FileDataSource implements RouterDataSource{
             throw new IllegalArgumentException("InputStream Mustn't be NULL");
         }
         this.inputStream = inputStream;
-        loadData();
     }
 
     private LineIterator lineIterator;
@@ -167,6 +168,8 @@ public class DxfDataSource extends FileDataSource implements RouterDataSource{
                     if (packageEdges(edge)) {
                         node.setEdges(edge);
                         edge.setTag(null);
+                    } else {
+                        Log.e(TAG, "packageEdges failed: " + edge);
                     }
                 }
             }
@@ -261,7 +264,7 @@ public class DxfDataSource extends FileDataSource implements RouterDataSource{
             } else if (DXF_CODE_X.equals(dxfUnit.code)) {
                 node.getXyz().x = Float.parseFloat(dxfUnit.content);
             } else if (DXF_CODE_Y.equals(dxfUnit.code)) {
-                node.getXyz().y = Float.parseFloat(dxfUnit.content);
+                node.getXyz().y = switchAxes ? -Float.parseFloat(dxfUnit.content) : Float.parseFloat(dxfUnit.content);
             } else if (DXF_CODE_Z.equals(dxfUnit.code)) {
                 node.getXyz().z = Math.round(Float.parseFloat(dxfUnit.content));
             }
@@ -330,16 +333,20 @@ public class DxfDataSource extends FileDataSource implements RouterDataSource{
             } else if (DXF_CODE_X.equals(dxfUnit.code)) {
                 wayLine.getStart().x = Float.parseFloat(dxfUnit.content);
             } else if (DXF_CODE_Y.equals(dxfUnit.code)) {
-                wayLine.getStart().y = Float.parseFloat(dxfUnit.content);
+                wayLine.getStart().y = switchAxes ? -Float.parseFloat(dxfUnit.content) : Float.parseFloat(dxfUnit.content);
             } else if (DXF_CODE_Z.equals(dxfUnit.code)) {
                 wayLine.getStart().z = Math.round(Float.parseFloat(dxfUnit.content));
             } else if (DXF_CODE_X2.equals(dxfUnit.code)) {
                 wayLine.getEnd().x = Float.parseFloat(dxfUnit.content);
             } else if (DXF_CODE_Y2.equals(dxfUnit.code)) {
-                wayLine.getEnd().y = Float.parseFloat(dxfUnit.content);
+                wayLine.getEnd().y = switchAxes ? -Float.parseFloat(dxfUnit.content) : Float.parseFloat(dxfUnit.content);
             } else if (DXF_CODE_Z2.equals(dxfUnit.code)) {
                 wayLine.getEnd().z = Math.round(Float.parseFloat(dxfUnit.content));
             }
+        }
+        if (new GPoint(wayLine.getStart()).equals(wayLine.getEnd())) {
+            Log.e(TAG, "wayLine have the same Start and End, Ignored: " + wayLine);
+            return;
         }
         if (pointId == ID.NONE_ID) {    //Way
             Way way;
@@ -362,6 +369,14 @@ public class DxfDataSource extends FileDataSource implements RouterDataSource{
 
     private boolean isEnd() {
         return lineIterator.hasNext() ? DXF_CODE_0.equals(lineIterator.peepNextLine().trim()) : true;
+    }
+
+    public boolean isSwitchAxes() {
+        return switchAxes;
+    }
+
+    public void setSwitchAxes(boolean switchAxes) {
+        this.switchAxes = switchAxes;
     }
 
     DxfUnit nextDxfUnit() {

@@ -158,11 +158,13 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
 
     public boolean setLevel(int level) {
         Floor[] floors = getDataSource().getFloors(level);
-        if (floors != null && floors.length > 0 && this.floor != floors[0]) {
-            this.floor = floors[0];
-            matrix = new Matrix();
-            matrix.invert(invertMatrix);
-            invalidate();
+        if (floors != null && floors.length > 0) {
+            if (this.floor != floors[0]) {
+                this.floor = floors[0];
+                matrix = new Matrix();
+                matrix.invert(invertMatrix);
+                invalidate();
+            }
             return true;
         }
         return false;
@@ -181,7 +183,7 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
     }
 
     public Rect getMapRect() {
-        RectF rectF = new Rect(0, 0, getWidth(), getHeight())/*.enlarge(1.1f)*/.toRectF();
+        RectF rectF = new Rect(0, 0, getWidth(), getHeight()).enlarge(1.1f).toRectF();
         invertMatrix.mapRect(rectF);
         Log.i(TAG, "mapRect " + rectF);
         return new Rect(rectF);
@@ -196,7 +198,6 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
             scale = getWidth()/fBounds.width();
             setMapCenter(new Point(fBounds.centerX(), fBounds.centerY()));
         }
-        Log.i(TAG, "scale: " + scale);
 
         // Save the current canvas matrix
         c.save();

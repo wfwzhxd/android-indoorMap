@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 
 import com.hunter.indoormap.data.DxfDataSource;
+import com.hunter.indoormap.data.FileDataSource;
 import com.hunter.indoormap.overlay.FloorSelectOverlay;
 import com.hunter.indoormap.overlay.MyLocationOverlay;
 import com.hunter.indoormap.overlay.NodeOverlay;
@@ -28,11 +29,13 @@ public class MainActivity extends AppCompatActivity {
         mapView = (MapView) findViewById(R.id.map_view);
         try {
             InputStream inputStream = getAssets().open("hospital.dxf");
-            mapView.setDataSource(new DxfDataSource(inputStream));
+            FileDataSource dataSource = new DxfDataSource(inputStream);
+            dataSource.loadData();
+            mapView.setDataSource(dataSource);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        mapView.setLevel(1);
+//        mapView.setLevel(1);
 
         mapView.getOverlayManager().add(new WayOverlay());
         mapView.getOverlayManager().add(new NodeOverlay());

@@ -119,8 +119,8 @@ public class Edges extends Tagger{
 
     @Override
     public String toString() {
-        return "Shape{" +
-                ", points=" + Arrays.toString(points) +
+        return "Edges{" +
+                "points=" + Arrays.toString(points) +
                 '}';
     }
 }

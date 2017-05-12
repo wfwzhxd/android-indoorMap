@@ -28,7 +28,7 @@ public class NodeOverlay extends Overlay {
     public NodeOverlay() {
         fillPaint = new Paint();
         fillPaint.setStyle(Paint.Style.FILL);
-        fillPaint.setColor(Color.BLUE);
+        fillPaint.setColor(Color.GREEN);
         strokePaint = new Paint();
         strokePaint.setStrokeWidth(2.0f);
         strokePaint.setStyle(Paint.Style.STROKE);
@@ -50,6 +50,7 @@ public class NodeOverlay extends Overlay {
                 Log.d(TAG, "edges is null " + node);
                 continue;
             }
+            Log.d(TAG, node.toString());
             Path edge = new Path();
             Point[] points = edges.getPoints();
             points = MatrixUtils.applyMatrix(points, matrix);
