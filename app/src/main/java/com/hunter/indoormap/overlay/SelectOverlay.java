@@ -54,6 +54,10 @@ public class SelectOverlay extends Overlay {
     @Override
     public void draw(Canvas c, MapView mv) {
         if (node != null) {
+            if (node.getXyz().z != mv.getLevel()) {
+                closePanel();
+                return;
+            }
             point = MatrixUtils.applyMatrix(node.getXyz(), mv.getMapMatrix());
             point.offset(-rect.width()>>1, -rect.height());
             rect2 = new Rect(rect).offset((int)point.x, (int)point.y).toRect();

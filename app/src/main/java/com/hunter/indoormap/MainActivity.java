@@ -8,6 +8,7 @@ import com.hunter.indoormap.data.DxfDataSource;
 import com.hunter.indoormap.data.FileDataSource;
 import com.hunter.indoormap.overlay.FloorSelectOverlay;
 import com.hunter.indoormap.overlay.MyLocationOverlay;
+import com.hunter.indoormap.overlay.NameOverlay;
 import com.hunter.indoormap.overlay.NodeOverlay;
 import com.hunter.indoormap.overlay.QRScannerOverlay;
 import com.hunter.indoormap.overlay.RotateIndicatorOverlay;
@@ -39,10 +40,13 @@ public class MainActivity extends AppCompatActivity {
 
         mapView.getOverlayManager().add(new WayOverlay());
         mapView.getOverlayManager().add(new NodeOverlay());
+        mapView.getOverlayManager().add(new NameOverlay(this));
+
         MyLocationOverlay myLocationOverlay = new MyLocationOverlay(mapView);
         mapView.getOverlayManager().add(myLocationOverlay);
         mapView.setMyLocationController(myLocationOverlay);
         mapView.getOverlayManager().add(new SelectOverlay(mapView));
+
         mapView.getOverlayManager().add(new RotateIndicatorOverlay(getResources()));
         mapView.getOverlayManager().add(new FloorSelectOverlay(mapView));
         mapView.getOverlayManager().add(new QRScannerOverlay(mapView, getFragmentManager()));

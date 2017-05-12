@@ -51,7 +51,7 @@ public class Node extends MObj {
 
     @Override
     protected void calculateBounds() {
-        bounds = edges == null ? new Rect(xyz.x-1, xyz.y-1, xyz.x+1, xyz.y+1) : edges.getBounds();
+        bounds = edges == null ? new Rect(xyz.x, xyz.y, xyz.x, xyz.y) : edges.getBounds();
     }
 
     @Override

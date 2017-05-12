@@ -100,6 +100,10 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
         return mapScrollY;
     }
 
+    public float getScale() {
+        return scale;
+    }
+
     public float getRotate() {
         return rotate;
     }
@@ -178,8 +182,13 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
         return invertMatrix;
     }
 
-    public void setMatrix(Matrix matrix) {
-        this.matrix = matrix;
+    public void setMapMatrix(Matrix matrix) {
+        if (matrix != null) {
+            this.matrix = matrix;
+        } else {
+            matrix = new Matrix();
+        }
+        matrix.invert(invertMatrix);
     }
 
     public Rect getMapRect() {

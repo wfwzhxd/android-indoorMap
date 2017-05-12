@@ -2,6 +2,8 @@ package com.hunter.indoormap;
 
 import android.graphics.Matrix;
 
+import com.hunter.indoormap.beans.GPoint;
+import com.hunter.indoormap.beans.Line;
 import com.hunter.indoormap.beans.Point;
 
 /**
@@ -28,5 +30,9 @@ public class MatrixUtils {
         float[] ps = new float[]{point.x, point.y};
         matrix.mapPoints(ps);
         return new Point(ps[0], ps[1]);
+    }
+
+    public static Line applyMatrix(Line line, Matrix matrix) {
+        return new Line(new GPoint(applyMatrix(line.getStart(), matrix)), new GPoint(applyMatrix(line.getEnd(), matrix)));
     }
 }

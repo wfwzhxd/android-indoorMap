@@ -40,9 +40,11 @@ public class MyLocationOverlay extends Overlay implements IMyLocationController{
 
     @Override
     public void draw(Canvas c, MapView mv) {
-        point = MatrixUtils.applyMatrix(myLocation, mv.getMapMatrix());
-        point.offset(-rect.width()>>1, -rect.height()>>1);
-        c.drawBitmap(bitmap, null, new Rect(rect).offset(point.x, point.y).toRect(), paint);
+        if (mv.getLevel() == myLocation.z) {
+            point = MatrixUtils.applyMatrix(myLocation, mv.getMapMatrix());
+            point.offset(-rect.width()>>1, -rect.height()>>1);
+            c.drawBitmap(bitmap, null, new Rect(rect).offset(point.x, point.y).toRect(), paint);
+        }
     }
 
     public GPoint getMyLocation() {

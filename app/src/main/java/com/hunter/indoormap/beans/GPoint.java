@@ -22,6 +22,10 @@ public class GPoint extends Point{
         this(src.x, src.y, src.z);
     }
 
+    public GPoint(Point src) {
+        this(src.x, src.y);
+    }
+
     public void setZ(int z) {
         this.z = z;
     }
