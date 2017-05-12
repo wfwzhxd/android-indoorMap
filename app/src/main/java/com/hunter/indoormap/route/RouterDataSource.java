@@ -1,6 +1,7 @@
 package com.hunter.indoormap.route;
 
 import com.hunter.indoormap.beans.GPoint;
+import com.hunter.indoormap.beans.Tagger;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -58,11 +59,14 @@ public interface RouterDataSource {
         }
 
         @Override
-        public boolean equals(Object obj) {
-            if (obj == null || !(obj instanceof Wnode)) {
-                return false;
-            }
-            return item==null ? ((Wnode) obj).item == null : new GPoint(item).equals(((Wnode) obj).item);
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Wnode)) return false;
+
+            Wnode<?> wnode = (Wnode<?>) o;
+
+            return item != null ? item.equals(wnode.item) : wnode.item == null;
+
         }
 
         public List<E> getNextItems() {

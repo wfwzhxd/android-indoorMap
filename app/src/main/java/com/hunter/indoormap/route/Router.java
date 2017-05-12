@@ -8,5 +8,5 @@ import com.hunter.indoormap.beans.GPoint;
 
 public interface Router {
 
-    Road[] route(GPoint start, GPoint end, GPoint[] pass);
+    Road[] route(final GPoint start, final GPoint end, final GPoint[] pass);
 }

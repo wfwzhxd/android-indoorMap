@@ -21,21 +21,10 @@ import java.util.TreeMap;
 
 public class ARouterDataSource implements RouterDataSource{
 
-    private final Comparator<Float> floatComparator = new Comparator<Float>() {
-        @Override
-        public int compare(Float o1, Float o2) {
-            if (MathUtils.isEqual(o1, o2)) {
-                return 0;
-            }
-            return o1-o2 < 0 ? -1 : 1;
-        }
-    };
-
-    // z , x, y
-    private TreeMap<Integer, TreeMap<Float, TreeMap<Float, Wnode>>> wNodes;
+    private ZXYIndexer<Wnode> zxyIndexer;
 
     public ARouterDataSource(List<? extends Line> lines) {
-        wNodes = new TreeMap<>();
+        zxyIndexer = new ZXYIndexer<>();
         if (lines != null) {
             sliceInitLines(lines);
         }
@@ -161,34 +150,63 @@ public class ARouterDataSource implements RouterDataSource{
     }
 
     public void addWnode(Wnode node) {
-        if (node == null || node.getItem() == null) {
-            throw new NullPointerException();
-        }
-        TreeMap<Float, TreeMap<Float, Wnode>> zn = wNodes.get(node.getItem().z);
-        if (zn == null) {
-            zn = new TreeMap<>(floatComparator);
-            wNodes.put(node.getItem().z, zn);
-        }
-        TreeMap<Float, Wnode> xn = zn.get(node.getItem().x);
-        if (xn == null) {
-            xn = new TreeMap<>(floatComparator);
-            zn.put(Float.valueOf(node.getItem().x), xn);
-        }
-        xn.put(Float.valueOf(node.getItem().y), node);
+        zxyIndexer.addZXY(node, node.getItem());
     }
 
     public Wnode getWnode(GPoint gPoint) {
-        if (gPoint == null) {
-            return null;
+        return zxyIndexer.getZXY(gPoint);
+    }
+
+    public static class ZXYIndexer<T> {
+
+        private static final Comparator<Float> floatComparator = new Comparator<Float>() {
+            @Override
+            public int compare(Float o1, Float o2) {
+                if (MathUtils.isEqual(o1, o2)) {
+                    return 0;
+                }
+                return o1-o2 < 0 ? -1 : 1;
+            }
+        };
+
+        // z , x, y
+        private TreeMap<Integer, TreeMap<Float, TreeMap<Float, T>>> ts;
+
+        public ZXYIndexer() {
+            ts = new TreeMap<>();
         }
-        TreeMap<Float, TreeMap<Float, Wnode>> zn = wNodes.get(gPoint.z);
-        if (zn == null) {
-            return null;
+
+        public void addZXY(T t, GPoint gPoint) {
+            if (t == null || gPoint == null) {
+                throw new NullPointerException();
+            }
+            TreeMap<Float, TreeMap<Float, T>> zn = ts.get(gPoint.z);
+            if (zn == null) {
+                zn = new TreeMap<>(floatComparator);
+                ts.put(gPoint.z, zn);
+            }
+            TreeMap<Float, T> xn = zn.get(gPoint.x);
+            if (xn == null) {
+                xn = new TreeMap<>(floatComparator);
+                zn.put(gPoint.x, xn);
+            }
+            xn.put(gPoint.y, t);
         }
-        TreeMap<Float, Wnode> xn = zn.get(gPoint.x);
-        if (xn == null) {
-            return null;
+
+        public T getZXY(GPoint gPoint) {
+            if (gPoint == null) {
+                return null;
+            }
+            TreeMap<Float, TreeMap<Float, T>> zn = ts.get(gPoint.z);
+            if (zn == null) {
+                return null;
+            }
+            TreeMap<Float, T> xn = zn.get(gPoint.x);
+            if (xn == null) {
+                return null;
+            }
+            return xn.get(gPoint.y);
         }
-        return xn.get(gPoint.y);
+
     }
 }

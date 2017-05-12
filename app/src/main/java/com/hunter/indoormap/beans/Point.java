@@ -37,9 +37,8 @@ public class Point {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof Point)) {
-            return false;
-        }
+        if (this == obj) return true;
+        if (!(obj instanceof Point)) return false;
         Point obj2 = (Point) obj;
         return MathUtils.isEqual(x, obj2.x) && MathUtils.isEqual(y, obj2.y);
     }

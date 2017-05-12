@@ -5,6 +5,7 @@ import com.hunter.indoormap.beans.GPoint;
 import static com.hunter.indoormap.beans.Way.WayNode;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by hunter on 5/6/17.
@@ -18,10 +19,10 @@ public class Road {
 
     private WayNode[] wayNodes;
 
-    public Road(GPoint[] gPoints) {
-        this.wayNodes = new WayNode[gPoints.length];
-        for (int i=0; i<gPoints.length; i++) {
-            wayNodes[i] = new WayNode(gPoints[i], DEFAULT_WIDTH);
+    public Road(List<GPoint> gPoints) {
+        this.wayNodes = new WayNode[gPoints.size()];
+        for (int i=0; i<gPoints.size(); i++) {
+            wayNodes[i] = new WayNode(gPoints.get(i), DEFAULT_WIDTH);
         }
         init();
     }
