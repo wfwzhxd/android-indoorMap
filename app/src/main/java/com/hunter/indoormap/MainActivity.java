@@ -170,4 +170,18 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
+    private long lastBackPressed;
+
+    @Override
+    public void onBackPressed() {
+        Long curTime = System.currentTimeMillis();
+        if (curTime-lastBackPressed < 1500) {
+            super.onBackPressed();
+            finish();
+        } else {
+            Toast.makeText(this, "再按一次退出", Toast.LENGTH_SHORT).show();
+        }
+        lastBackPressed = curTime;
+    }
 }

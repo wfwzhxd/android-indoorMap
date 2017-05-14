@@ -8,4 +8,7 @@
     <string name="please_select_mapfile">选择要浏览的地图：</string>
     <string name="loadmap_error">地图加载错误！</string>
     <string name="ok">确定</string>
+    <string name="distance_time">共%1$.1f米，步行大约需要%2$.1f分钟</string>
+    <string name="wrong_qrcode">错误的位置！</string>
+    <string name="no_road_found">没有找到合适的路径！</string>
 </resources>

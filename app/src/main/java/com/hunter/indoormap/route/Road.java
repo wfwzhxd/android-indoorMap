@@ -54,6 +54,10 @@ public class Road {
         return wayNodes;
     }
 
+    public float getLength() {
+        return length;
+    }
+
     @Override
     public String toString() {
         return "Road{" +

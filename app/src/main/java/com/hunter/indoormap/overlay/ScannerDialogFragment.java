@@ -36,7 +36,7 @@ public class ScannerDialogFragment extends DialogFragment implements ZXingScanne
                 dismiss();
             }
         });
-        mScannerView.setFormats(Collections.singletonList(BarcodeFormat.QR_CODE));
+//        mScannerView.setFormats(Collections.singletonList(BarcodeFormat.QR_CODE));
         mScannerView.setResultHandler(this);
         return new AlertDialog.Builder(getActivity()).setView(mScannerView).create();
     }

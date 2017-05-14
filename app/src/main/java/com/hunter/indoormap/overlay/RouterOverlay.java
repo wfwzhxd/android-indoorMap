@@ -15,8 +15,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.hunter.indoormap.CoordinateUtils;
+import com.hunter.indoormap.IMyLocationController;
 import com.hunter.indoormap.MapView;
 import com.hunter.indoormap.MatrixUtils;
 import com.hunter.indoormap.R;
@@ -33,7 +36,16 @@ import com.hunter.indoormap.route.impl.AstarRouter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by hunter on 4/22/17.
@@ -59,6 +71,9 @@ public class RouterOverlay extends Overlay implements Router{
 
     View waitingView;
     View routerView;
+    TextView distanceView;
+    RelativeLayout.LayoutParams waitingViewlayoutParams;
+    RelativeLayout.LayoutParams routerViewlayoutParams;
 
     public RouterOverlay(RouterDataSource routerDataSource, MapView mapView) {
         setRouterDataSource(routerDataSource);
@@ -84,9 +99,17 @@ public class RouterOverlay extends Overlay implements Router{
         routerView.findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                exitRoute();
             }
         });
+        distanceView = (TextView) routerView.findViewById(R.id.text);
+        routerViewlayoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        routerViewlayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        int margin = (int) (10 * density);
+        routerViewlayoutParams.setMargins(margin, margin, margin, margin);
+
+        waitingViewlayoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        waitingViewlayoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
     }
 
     private void setSelectOverlayEnable(boolean enable) {
@@ -101,18 +124,36 @@ public class RouterOverlay extends Overlay implements Router{
 
     boolean routing;
 
+    //UI
     private void startRoute(GPoint start, GPoint end) {
         routing = true;
+        setSelectOverlayEnable(false);
         // show waiting view
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
-        mapView.addView(waitingView, layoutParams);
-        new RouteTask().executeOnExecutor(Executors.newFixedThreadPool(1), start, end);
+
+        mapView.addView(waitingView, waitingViewlayoutParams);
+        mapView.addView(routerView, this.routerViewlayoutParams);
+        routeTask = new RouteTask();
+        routeTask.executeOnExecutor(Executors.newFixedThreadPool(1), start, end);
+    }
+
+    RouteTask routeTask;
+    //UI
+    private void exitRoute() {
+        routing = false;
+        road = null;
+        mapView.removeView(waitingView);
+        mapView.removeView(routerView);
+        setSelectOverlayEnable(true);
+        if (routeTask != null && routeTask.getStatus() == AsyncTask.Status.RUNNING) {
+            routeTask.cancel(true);
+            routeTask = null;
+        }
     }
 
     @Override
     public void draw(Canvas c, MapView mv) {
-        if (road != null) {
+        if (routing && road != null) {
+            distanceView.setText(mv.getContext().getString(R.string.distance_time, road.getLength(), road.getLength()/80));
             drawRoad(c, mv);
             drawBitmap(c, mv);
         }
@@ -254,26 +295,47 @@ public class RouterOverlay extends Overlay implements Router{
     }
 
     class RouteTask extends AsyncTask<GPoint, Void, Road[]> {
+        long MAX_TIME = 4000;
 
         @Override
-        protected Road[] doInBackground(GPoint... params) {
+        protected Road[] doInBackground(final GPoint... params) {
             if (params == null || params.length < 2) {
                 return null;
             }
-            Router router = new AstarRouter(routerDataSource);
-            return router.route(params[0], params[1], null);
+            Callable<Road[]> c = new Callable<Road[]>() {
+                @Override
+                public Road[] call() throws Exception {
+                    Router router = new AstarRouter(routerDataSource);
+                    return router.route(params[0], params[1], null);
+                }
+            };
+            ExecutorService executor = Executors.newFixedThreadPool(1);
+            Future<Road[]> futureTask = executor.submit(c);
+
+            Road[] roads = null;
+            try {
+                roads = futureTask.get(MAX_TIME, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (TimeoutException e) {
+                e.printStackTrace();
+            }
+            return roads;
         }
 
         @Override
         protected void onPostExecute(Road[] roads) {
-
-            if (roads != null && roads.length > 0) {
+            mapView.removeView(waitingView);
+            if (roads != null && roads.length > 0 && roads[0] != null && roads[0].isValid()) {
                 road = roads[0];
-                mapView.invalidate();
+                mapView.setMapCenter(road.getWayNodes()[0]);
             } else {
                 road = null;
+                Toast.makeText(mapView.getContext(), R.string.no_road_found, Toast.LENGTH_SHORT).show();
+                exitRoute();
             }
-            mapView.removeView(waitingView);
         }
     }
 }

@@ -28,7 +28,7 @@ public class QRScannerOverlay extends Overlay implements ZXingScannerView.Result
     FragmentManager fragmentManager;
     ScannerDialogFragment scannerDialogFragment;
 
-    private static final int WIDTH = 50;
+    private static final int WIDTH = 40;
     Bitmap bitmap;
     private Rect rect;
     private int width;
@@ -51,7 +51,9 @@ public class QRScannerOverlay extends Overlay implements ZXingScannerView.Result
     @Override
     public void draw(Canvas c, MapView mv) {
         if (rect == null) {
-            rect = new com.hunter.indoormap.beans.Rect(width/5, 0, width, width).offset(0, mapView.getHeight()-width*2).toRect();
+            int left = (mv.getWidth()-width)>>1;
+            int top = width/5;
+            rect = new com.hunter.indoormap.beans.Rect(left, top, left+width, top+width).toRect();
         }
         c.drawBitmap(bitmap, null, rect, paint);
     }
@@ -59,20 +61,20 @@ public class QRScannerOverlay extends Overlay implements ZXingScannerView.Result
     @Override
     public void handleResult(Result result) {
         try {
-            /*
             GPoint location = parseGPoint(result.getText());
-            if (mapView.getDataSource().getFloorMap(location.z) != null) {
+            if (mapView.getDataSource().getFloors(location.z) != null) {
                 scannerDialogFragment.dismiss();
                 mapView.getMyLocationController().setMyLocation(location);
                 return;
-            }*/
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Toast.makeText(mapView.getContext(), "错误的二维码！", Toast.LENGTH_SHORT).show();
+        Toast.makeText(mapView.getContext(), R.string.wrong_qrcode, Toast.LENGTH_SHORT).show();
     }
 
     private GPoint parseGPoint(String line) {
+        if (line == null) return null;
         String[] ps = line.split(",");
         GPoint p = null;
         if (ps.length == 3) {

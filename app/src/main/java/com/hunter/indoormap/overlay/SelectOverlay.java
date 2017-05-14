@@ -59,7 +59,11 @@ public class SelectOverlay extends Overlay implements IMyLocationController.OnMy
 
     @Override
     public void draw(Canvas c, MapView mv) {
-        if (isEnabled() && node != null) {
+        if (!isEnabled()) {
+            closePanel();
+            return;
+        }
+        if (node != null) {
             if (node.getXyz().z != mv.getLevel()) {
                 closePanel();
                 return;
