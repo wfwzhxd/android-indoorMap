@@ -10,18 +10,17 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.Toast;
 
-import com.google.zxing.Result;
 import com.hunter.indoormap.MapView;
 import com.hunter.indoormap.R;
 import com.hunter.indoormap.beans.GPoint;
 
-import me.dm7.barcodescanner.zxing.ZXingScannerView;
+import me.dm7.barcodescanner.zbar.ZBarScannerView;
 
 /**
  * Created by hunter on 4/23/17.
  */
 
-public class QRScannerOverlay extends Overlay implements ZXingScannerView.ResultHandler{
+public class QRScannerOverlay extends Overlay implements ZBarScannerView.ResultHandler{
     private static final String TAG = QRScannerOverlay.class.getSimpleName();
 
     MapView mapView;
@@ -59,9 +58,9 @@ public class QRScannerOverlay extends Overlay implements ZXingScannerView.Result
     }
 
     @Override
-    public void handleResult(Result result) {
+    public void handleResult(me.dm7.barcodescanner.zbar.Result result) {
         try {
-            GPoint location = parseGPoint(result.getText());
+            GPoint location = parseGPoint(result.getContents());
             if (mapView.getDataSource().getFloors(location.z) != null) {
                 scannerDialogFragment.dismiss();
                 mapView.getMyLocationController().setMyLocation(location);

@@ -12,24 +12,20 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.Result;
-
-import java.util.Collections;
-
-import me.dm7.barcodescanner.zxing.ZXingScannerView;
+import me.dm7.barcodescanner.zbar.ZBarScannerView;
 
 import static android.content.pm.PackageManager.PERMISSION_DENIED;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
-public class ScannerDialogFragment extends DialogFragment implements ZXingScannerView.ResultHandler {
+public class ScannerDialogFragment extends DialogFragment implements ZBarScannerView.ResultHandler {
     private static String TAG = ScannerDialogFragment.class.getSimpleName();
-    private ZXingScannerView mScannerView;
-    ZXingScannerView.ResultHandler resultHandler;
+    private ZBarScannerView mScannerView;
+    ZBarScannerView.ResultHandler resultHandler;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        mScannerView = new ZXingScannerView(getActivity());
+        mScannerView = new ZBarScannerView(getActivity());
+        mScannerView.setAutoFocus(true);
         mScannerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,13 +58,13 @@ public class ScannerDialogFragment extends DialogFragment implements ZXingScanne
         }
     }
 
-    public void setResultHandler(ZXingScannerView.ResultHandler resultHandler) {
+    public void setResultHandler(ZBarScannerView.ResultHandler resultHandler) {
         this.resultHandler = resultHandler;
     }
 
     @Override
-    public void handleResult(Result rawResult) {
-        Log.i(TAG, "Contents = " + rawResult.getText() +
+    public void handleResult(me.dm7.barcodescanner.zbar.Result rawResult) {
+        Log.i(TAG, "Contents = " + rawResult.getContents() +
                 ", Format = " + rawResult.getBarcodeFormat().toString());
         // Note:
         // * Wait 2 seconds to resume the preview.
@@ -94,5 +90,4 @@ public class ScannerDialogFragment extends DialogFragment implements ZXingScanne
         super.onPause();
         mScannerView.stopCamera();
     }
-
 }

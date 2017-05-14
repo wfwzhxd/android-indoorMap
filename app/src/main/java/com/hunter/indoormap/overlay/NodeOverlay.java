@@ -28,11 +28,11 @@ public class NodeOverlay extends Overlay {
     public NodeOverlay() {
         fillPaint = new Paint();
         fillPaint.setStyle(Paint.Style.FILL);
-        fillPaint.setColor(Color.GREEN);
+        fillPaint.setColor(Color.parseColor("#00f6ff"));
         strokePaint = new Paint();
         strokePaint.setStrokeWidth(2.0f);
         strokePaint.setStyle(Paint.Style.STROKE);
-        strokePaint.setColor(Color.BLACK);
+        strokePaint.setColor(Color.parseColor("#ffb71c"));
         strokePaint.setAntiAlias(true);
     }
 
@@ -61,5 +61,9 @@ public class NodeOverlay extends Overlay {
             c.drawPath(edge, fillPaint);
             c.drawPath(edge, strokePaint);
         }
+    }
+
+    public void setFillColor(int color) {
+        fillPaint.setColor(color);
     }
 }

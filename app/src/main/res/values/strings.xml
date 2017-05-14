@@ -11,4 +11,6 @@
     <string name="distance_time">共%1$.1f米，步行大约需要%2$.1f分钟</string>
     <string name="wrong_qrcode">错误的位置！</string>
     <string name="no_road_found">没有找到合适的路径！</string>
+    <string name="press_again_exit">再按一次退出地图</string>
+    <string name="loading_map">地图加载中</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.hunter.indoormap;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -18,8 +19,17 @@ import com.hunter.indoormap.beans.Point;
 import com.hunter.indoormap.beans.Rect;
 import com.hunter.indoormap.data.DataSource;
 import com.hunter.indoormap.overlay.DefaultOverlayManager;
+import com.hunter.indoormap.overlay.FloorSelectOverlay;
+import com.hunter.indoormap.overlay.MyLocationOverlay;
+import com.hunter.indoormap.overlay.NameOverlay;
+import com.hunter.indoormap.overlay.NodeOverlay;
 import com.hunter.indoormap.overlay.Overlay;
 import com.hunter.indoormap.overlay.OverlayManager;
+import com.hunter.indoormap.overlay.QRScannerOverlay;
+import com.hunter.indoormap.overlay.RotateIndicatorOverlay;
+import com.hunter.indoormap.overlay.RouterOverlay;
+import com.hunter.indoormap.overlay.SelectOverlay;
+import com.hunter.indoormap.overlay.WayOverlay;
 import com.hunter.indoormap.route.Router;
 
 import org.metalev.multitouch.controller.MultiTouchController;
@@ -77,6 +87,26 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
         matrix = new Matrix();
         invertMatrix = new Matrix();
         matrix.invert(invertMatrix);
+        initDefaultOverlays();
+    }
+
+    private void initDefaultOverlays() {
+        getOverlayManager().add(new WayOverlay());
+        getOverlayManager().add(new NodeOverlay());
+
+        RouterOverlay routerOverlay = new RouterOverlay(null, this);
+        setRouter(routerOverlay);
+        getOverlayManager().add(routerOverlay);
+        getOverlayManager().add(new NameOverlay(getContext()));
+
+        MyLocationOverlay myLocationOverlay = new MyLocationOverlay(this);
+        getOverlayManager().add(myLocationOverlay);
+        setMyLocationController(myLocationOverlay);
+        getOverlayManager().add(new SelectOverlay(this));
+
+        getOverlayManager().add(new RotateIndicatorOverlay(getResources()));
+        getOverlayManager().add(new FloorSelectOverlay(this));
+        getOverlayManager().add(new QRScannerOverlay(this, ((Activity)getContext()).getFragmentManager()));
     }
 
     public void mapScrollBy(int dx, int dy) {

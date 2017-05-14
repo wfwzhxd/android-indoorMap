@@ -28,7 +28,7 @@ public class WayOverlay extends Overlay {
     public WayOverlay() {
         fillPaint = new Paint();
         fillPaint.setStyle(Paint.Style.FILL);
-        fillPaint.setColor(Color.GRAY);
+        fillPaint.setColor(Color.parseColor("#a29e89"));
     }
 
     @Override
