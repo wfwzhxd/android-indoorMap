@@ -27,6 +27,6 @@ dependencies {
     //noinspection GradleCompatible
     compile 'com.android.support:appcompat-v7:25.2.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha4'
-    testCompile 'junit:junit:4.12'
     compile 'me.dm7.barcodescanner:zxing:1.9.1'
+    testCompile 'junit:junit:4.12'
 }

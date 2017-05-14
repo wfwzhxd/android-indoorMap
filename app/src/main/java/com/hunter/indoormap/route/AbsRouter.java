@@ -19,6 +19,7 @@ public abstract class AbsRouter implements Router {
 
     @Override
     public Road[] route(final GPoint start, final GPoint end, final GPoint[] pass) {
+        if (start == null || end == null) return null;
         if (start.equals(end)) {
             return null;
         }

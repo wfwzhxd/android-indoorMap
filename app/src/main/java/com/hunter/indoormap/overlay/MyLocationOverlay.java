@@ -12,6 +12,8 @@ import com.hunter.indoormap.R;
 import com.hunter.indoormap.beans.GPoint;
 import com.hunter.indoormap.beans.Point;
 import com.hunter.indoormap.beans.Rect;
+import com.hunter.indoormap.util.Observable;
+import com.hunter.indoormap.util.Observer;
 
 /**
  * Created by hunter on 4/22/17.
@@ -26,10 +28,15 @@ public class MyLocationOverlay extends Overlay implements IMyLocationController{
     int width;
     Point point;
     Paint paint;
+    Observable observable = new Observable() {
+        @Override
+        protected void doNotify(Observer observer, Object data) {
+            ((OnMyLocationChangedListener)observer).onMyLocationChanged((GPoint) data);
+        }
+    };
 
     public MyLocationOverlay(MapView mapView) {
         this.mapView = mapView;
-        myLocation = mapView.getMapCenter();
         paint = new Paint();
         paint.setAntiAlias(true);
         bitmap = BitmapFactory.decodeResource(mapView.getResources(), R.mipmap.my_location);
@@ -40,7 +47,7 @@ public class MyLocationOverlay extends Overlay implements IMyLocationController{
 
     @Override
     public void draw(Canvas c, MapView mv) {
-        if (mv.getLevel() == myLocation.z) {
+        if (myLocation != null && mv.getLevel() == myLocation.z) {
             point = MatrixUtils.applyMatrix(myLocation, mv.getMapMatrix());
             point.offset(-rect.width()>>1, -rect.height()>>1);
             c.drawBitmap(bitmap, null, new Rect(rect).offset(point.x, point.y).toRect(), paint);
@@ -53,6 +60,21 @@ public class MyLocationOverlay extends Overlay implements IMyLocationController{
 
     public void setMyLocation(GPoint myLocation) {
         this.myLocation = myLocation;
-        mapView.setMapCenter(myLocation);
+        if (mapView.getLevel() != myLocation.z || !mapView.getMapRect().contains(myLocation.x, myLocation.y)) {
+            mapView.setMapCenter(myLocation);
+        }
+        mapView.invalidateInMain();
+        observable.setChanged();
+        observable.notifyObservers(myLocation);
+    }
+
+    @Override
+    public void addOnMyLocationChangedListener(OnMyLocationChangedListener listener) {
+        observable.addObserver(listener);
+    }
+
+    @Override
+    public void removeOnMyLocationChangedListener(OnMyLocationChangedListener listener) {
+        observable.deleteObserver(listener);
     }
 }

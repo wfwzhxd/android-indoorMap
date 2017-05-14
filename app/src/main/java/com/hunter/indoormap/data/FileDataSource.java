@@ -145,12 +145,14 @@ public abstract class FileDataSource implements DataSource {
             }
             List<T> results = new LinkedList<>();
             if (floor != null) {
-                results.addAll(filterMobjs(mObjs.get(floor), region));
+                List<T> l = filterMobjs(mObjs.get(floor), region);
+                if (l != null) results.addAll(l);
             }
             else {
                 Iterator<LinkedList<T>> iterator = mObjs.values().iterator();
                 while (iterator.hasNext()) {
-                    results.addAll(filterMobjs(iterator.next(), region));
+                    List<T> l = filterMobjs(iterator.next(), region);
+                    if (l != null) results.addAll(l);
                 }
             }
             //cache results
@@ -161,7 +163,7 @@ public abstract class FileDataSource implements DataSource {
         }
 
         List<T> filterMobjs(List<T> mObjs, Rect region) {
-            if (region == null) {
+            if (region == null || mObjs == null) {
                 return mObjs;
             }
             List<T> results = new LinkedList<>();

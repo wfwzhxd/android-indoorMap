@@ -43,7 +43,8 @@ public class DxfDataSource extends FileDataSource implements RouterDataSource{
 
     public DxfDataSource(File dataFile) {
         if (dataFile == null || dataFile.isDirectory() || !dataFile.canRead()) {
-            throw new IllegalArgumentException("Invalid file: " + dataFile);
+//            throw new IllegalArgumentException("Invalid file: " + dataFile);
+            Log.o("Invalid file: " + dataFile);
         }
         this.dataFile = dataFile;
     }
@@ -63,6 +64,7 @@ public class DxfDataSource extends FileDataSource implements RouterDataSource{
     int wayID = Integer.MIN_VALUE;
 
     public boolean parseDxf() {
+        boolean ok = false;
         try {
             if (inputStream == null) {
                 lineIterator = new LineIterator(dataFile);
@@ -77,17 +79,19 @@ public class DxfDataSource extends FileDataSource implements RouterDataSource{
             lineIterator.close();
             packageNode();
             packageWay();
+            if (!nodes.isEmpty() || !edges.isEmpty() || !ways.isEmpty()) {
+                ok = true;
+            }
             // clear unused data
             nodes = null;
             edges = null;
             ways = null;
-            return true;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        return false;
+        return ok;
     }
 
     private static final String DXF_CODE_0 = "0";

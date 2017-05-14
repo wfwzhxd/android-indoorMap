@@ -50,6 +50,10 @@ public class Road {
         return wayNodes != null && wayNodes.length > 1;
     }
 
+    public WayNode[] getWayNodes() {
+        return wayNodes;
+    }
+
     @Override
     public String toString() {
         return "Road{" +

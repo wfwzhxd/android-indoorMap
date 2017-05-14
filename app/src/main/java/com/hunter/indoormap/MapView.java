@@ -20,6 +20,7 @@ import com.hunter.indoormap.data.DataSource;
 import com.hunter.indoormap.overlay.DefaultOverlayManager;
 import com.hunter.indoormap.overlay.Overlay;
 import com.hunter.indoormap.overlay.OverlayManager;
+import com.hunter.indoormap.route.Router;
 
 import org.metalev.multitouch.controller.MultiTouchController;
 
@@ -34,10 +35,11 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
     private MultiTouchController<Object> multiTouchController;
     private OverlayManager mOverlayManager;
 
-    private DataSource mDataSource = emptyDataSource;
+    private DataSource mDataSource;
     private Floor floor;
 
     private IMyLocationController mIMyLocationController;
+    private Router mRouter;
 
     private int mapScrollX;
     private int mapScrollY;
@@ -60,6 +62,7 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
 
     public MapView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        setDataSource(emptyDataSource);
         mOverlayManager = new DefaultOverlayManager();
         mGestureDetector = new GestureDetector(context, new MapViewGestureDetectorListener()) {
             @Override
@@ -79,17 +82,21 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
     public void mapScrollBy(int dx, int dy) {
         matrix.postTranslate(-dx, -dy);
         matrix.invert(invertMatrix);
-        if (Looper.getMainLooper() == Looper.myLooper()) {
-            invalidate();
-        } else {
-            postInvalidate();
-        }
+        invalidateInMain();
     }
 
     public void mapScrollTo(int x, int y) {
         mapScrollBy(x-mapScrollX, y-mapScrollY);
         mapScrollX = x;
         mapScrollY = y;
+    }
+
+    public void invalidateInMain() {
+        if (Looper.getMainLooper() == Looper.myLooper()) {
+            invalidate();
+        } else {
+            postInvalidate();
+        }
     }
 
     public int getMapScrollX() {
@@ -138,11 +145,11 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
 
     public void setDataSource(DataSource mDataSource) {
         if (mDataSource != null) {
+            this.mDataSource = mDataSource;
             Floor[] floors = mDataSource.getFloors(null);
             if (floors != null && floors.length > 0) {
-                floor = floors[0];
+                setLevel(floors[0].getZ());
             }
-            this.mDataSource = mDataSource;
         } else {
             this.mDataSource = emptyDataSource;
         }
@@ -156,6 +163,14 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
         this.mIMyLocationController = mIMyLocationController;
     }
 
+    public Router getRouter() {
+        return mRouter;
+    }
+
+    public void setRouter(Router mRouter) {
+        this.mRouter = mRouter;
+    }
+
     public int getLevel() {
         return floor == null ? 0 : floor.getZ();
     }
@@ -167,7 +182,7 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
                 this.floor = floors[0];
                 matrix = new Matrix();
                 matrix.invert(invertMatrix);
-                invalidate();
+                invalidateInMain();
             }
             return true;
         }
@@ -189,10 +204,11 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
             matrix = new Matrix();
         }
         matrix.invert(invertMatrix);
+        invalidateInMain();
     }
 
     public Rect getMapRect() {
-        RectF rectF = new Rect(0, 0, getWidth(), getHeight()).enlarge(1.1f).toRectF();
+        RectF rectF = new Rect(0, 0, getWidth(), getHeight()).toRectF();
         invertMatrix.mapRect(rectF);
         Log.i(TAG, "mapRect " + rectF);
         return new Rect(rectF);
@@ -300,8 +316,20 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
 
     }
 
+    public void setMapRect(Rect rect) {
+        if (rect.isEmpty()) return;
+        float tmpScale;
+        if (rect.width() > rect.height()) {
+            tmpScale = getWidth()/rect.width();
+        } else {
+            tmpScale = getHeight()/rect.height();
+        }
+        //TODO implement
+    }
+
     public void setMapCenter(GPoint gPoint) {
-        if (setLevel(gPoint.z)) {
+        Log.d(TAG, "setMapCenter " +  gPoint);
+        if (gPoint != null && setLevel(gPoint.z)) {
             setMapCenter((Point)gPoint);
         }
     }

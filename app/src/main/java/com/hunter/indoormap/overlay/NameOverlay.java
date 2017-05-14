@@ -53,7 +53,7 @@ public class NameOverlay extends Overlay {
 
     @Override
     public void draw(Canvas c, MapView mv) {
-        List<Node> nodes = mv.getDataSource().getNodes(mv.getMapRect(), mv.getLevel());
+        List<Node> nodes = mv.getDataSource().getNodes(mv.getMapRect().enlarge(1.1f), mv.getLevel());
         if (nodes != null) {
             for (Node node : nodes) {
                 if (!TextUtils.isEmpty(node.getName()) && !node.getBounds().isEmpty()) {
@@ -62,7 +62,7 @@ public class NameOverlay extends Overlay {
             }
         }
 
-        List<Way> ways = mv.getDataSource().getWays(mv.getMapRect(), mv.getLevel());
+        List<Way> ways = mv.getDataSource().getWays(mv.getMapRect().enlarge(1.1f), mv.getLevel());
         if (ways != null) {
             for (Way way : ways) {
                 if (!TextUtils.isEmpty(way.getName())) {

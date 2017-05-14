@@ -2,6 +2,7 @@ package com.hunter.indoormap.route;
 
 import com.hunter.indoormap.beans.GPoint;
 import com.hunter.indoormap.beans.Tagger;
+import com.hunter.indoormap.data.DataSource;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -12,6 +13,14 @@ import java.util.List;
  */
 
 public interface RouterDataSource {
+
+    class EmptyDataSource extends DataSource.EmptyDataSource implements RouterDataSource {
+
+        @Override
+        public Wnode getWnode(GPoint gPoint) {
+            return null;
+        }
+    }
 
     class Wnode<E extends GPoint> {
         private E item;

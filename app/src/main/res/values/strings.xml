@@ -2,4 +2,10 @@
     <string name="app_name">IndoorMap</string>
     <string name="set_as_myLocation">设为我的位置</string>
     <string name="go_here">去这里</string>
+    <string name="route_searching">正在规划路径</string>
+    <string name="exit_router">退出导航</string>
+    <string name="select_mapfile">选择手机中的地图文件</string>
+    <string name="please_select_mapfile">选择要浏览的地图：</string>
+    <string name="loadmap_error">地图加载错误！</string>
+    <string name="ok">确定</string>
 </resources>
