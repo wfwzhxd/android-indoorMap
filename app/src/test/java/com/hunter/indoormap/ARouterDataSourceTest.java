@@ -20,7 +20,7 @@ public class ARouterDataSourceTest {
 
     @Test
     public void wNodeTest() {
-        ARouterDataSource routerDS = new ARouterDataSource(null) {};
+        ARouterDataSource routerDS = new ARouterDataSource(null);
         GPoint p1 = gp(1.7f, 2.34524f, 3);
         ARouterDataSource.Wnode<GPoint> w1 = new ARouterDataSource.Wnode<>(p1);
         routerDS.addWnode(w1);

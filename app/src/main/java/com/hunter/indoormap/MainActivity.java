@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
 //        final String File
 
         final String ASSETS_URI_PRIFIX = "/android_asset/";
+        final String FILE_SCHEME = "file";
         ProgressDialog progressDialog;
 
         @Override
@@ -86,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         protected DataSource doInBackground(Uri... params) {
             Uri mapUri = params[0];
             DxfDataSource dataSource = null;
-            if (mapUri.getScheme() != null && mapUri.getScheme().toLowerCase().equals("file")) {
+            if (FILE_SCHEME.equalsIgnoreCase(mapUri.getScheme())) {
                 String path = mapUri.getPath();
                 if (path != null) {
                     if (path.toLowerCase().startsWith(ASSETS_URI_PRIFIX) && path.length() > ASSETS_URI_PRIFIX.length()) {

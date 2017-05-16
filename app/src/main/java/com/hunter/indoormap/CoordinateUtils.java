@@ -33,7 +33,7 @@ public class CoordinateUtils {
         if (desDegree<0) {
             desDegree += 360;
         }
-        System.out.println(degree + " " + oriDrgree + " " + desDegree);
+//        System.out.println(degree + " " + oriDrgree + " " + desDegree);
         double radians = degree2radians(desDegree);
         float x = (float) (center.x + Math.cos(radians) * distance);
         float y = (float) (center.y + Math.sin(radians) * distance);

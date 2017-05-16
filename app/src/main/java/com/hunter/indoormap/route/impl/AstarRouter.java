@@ -36,7 +36,7 @@ public class AstarRouter extends AbsRouter {
         openList = new PriorityQueue<>();
         closeList = new ZXYIndexer<>();
         final AstarItem destination = new AstarItem(end, null, null);
-        Road[] roads = null;
+        Road[] roads = new Road[0];
         // main logic start
         openList.add(new AstarItem(start, null, destination));
         AstarItem curAstar;

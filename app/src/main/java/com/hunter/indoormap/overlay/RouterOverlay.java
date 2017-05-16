@@ -28,6 +28,8 @@ import static com.hunter.indoormap.beans.Way.WayNode;
 
 import com.hunter.indoormap.beans.Line;
 import com.hunter.indoormap.beans.Point;
+import com.hunter.indoormap.route.ArbitraryRouter;
+import com.hunter.indoormap.route.ArbitraryRouterDataSource;
 import com.hunter.indoormap.route.Road;
 import com.hunter.indoormap.route.Router;
 import com.hunter.indoormap.route.RouterDataSource;
@@ -306,6 +308,9 @@ public class RouterOverlay extends Overlay implements Router{
                 @Override
                 public Road[] call() throws Exception {
                     Router router = new AstarRouter(routerDataSource);
+                    if (routerDataSource instanceof ArbitraryRouterDataSource) {
+                        router = new ArbitraryRouter(router, (ArbitraryRouterDataSource) routerDataSource);
+                    }
                     return router.route(params[0], params[1], null);
                 }
             };
@@ -322,13 +327,13 @@ public class RouterOverlay extends Overlay implements Router{
             } catch (TimeoutException e) {
                 e.printStackTrace();
             }
-            return roads;
+            return roads == null ? new Road[0] : roads;
         }
 
         @Override
         protected void onPostExecute(Road[] roads) {
             mapView.removeView(waitingView);
-            if (roads != null && roads.length > 0 && roads[0] != null && roads[0].isValid()) {
+            if (roads.length != 0 /*&& roads[0] != null */&& roads[0].isValid()) {
                 road = roads[0];
                 mapView.setMapCenter(road.getWayNodes()[0]);
             } else {

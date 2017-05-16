@@ -4,7 +4,7 @@ package com.hunter.indoormap.beans;
  * Created by hunter on 3/25/17.
  */
 
-public class MObj extends Tagger{
+public class MObj extends Tagger implements Shape{
     int id;
     String name;
     transient Rect bounds;

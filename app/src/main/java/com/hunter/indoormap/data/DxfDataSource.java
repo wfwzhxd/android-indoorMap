@@ -1,8 +1,11 @@
 package com.hunter.indoormap.data;
 
+import android.support.annotation.NonNull;
+
 import com.hunter.indoormap.CoordinateUtils;
 import com.hunter.indoormap.Log;
 import com.hunter.indoormap.beans.Edges;
+import com.hunter.indoormap.beans.Floor;
 import com.hunter.indoormap.beans.GPoint;
 import com.hunter.indoormap.beans.ID;
 import com.hunter.indoormap.beans.Line;
@@ -10,6 +13,7 @@ import com.hunter.indoormap.beans.Node;
 import com.hunter.indoormap.beans.Point;
 import com.hunter.indoormap.beans.Way;
 import com.hunter.indoormap.route.ARouterDataSource;
+import com.hunter.indoormap.route.ArbitraryRouterDataSource;
 import com.hunter.indoormap.route.RouterDataSource;
 
 import static com.hunter.indoormap.beans.Way.*;
@@ -31,7 +35,7 @@ import java.util.Set;
  * Created by hunter on 5/10/17.
  */
 
-public class DxfDataSource extends FileDataSource implements RouterDataSource{
+public class DxfDataSource extends FileDataSource implements ArbitraryRouterDataSource{
     public static final String TAG = DxfDataSource.class.getSimpleName();
 
     public static final String DATAFILE_ENCODING = "UTF-8";
@@ -134,6 +138,7 @@ public class DxfDataSource extends FileDataSource implements RouterDataSource{
         for (Way way : ways.values()) {
             List<WayLine> wayLines = (List<WayLine>) way.getTag();
             if (wayLines == null || wayLines.size() == 0){
+                //unreachable
                 continue;
             }
             allWayLines.addAll(wayLines);
@@ -151,7 +156,7 @@ public class DxfDataSource extends FileDataSource implements RouterDataSource{
                 commitWay(floor, way);
             }
         }
-        //TODO commit allWayLines to ARouterDataSource
+        // commit allWayLines to ARouterDataSource
         aRouterDataSource = new ARouterDataSource(allWayLines);
     }
 
@@ -167,7 +172,7 @@ public class DxfDataSource extends FileDataSource implements RouterDataSource{
     private void packageNode() {
         for (Node node : nodes) {
             if (node.getId() != ID.NONE_ID) {
-                Edges edge = edges.get(Integer.valueOf(node.getId()));
+                Edges edge = edges.get(node.getId());
                 if (edge != null) {
                     if (packageEdges(edge)) {
                         node.setEdges(edge);
@@ -175,6 +180,8 @@ public class DxfDataSource extends FileDataSource implements RouterDataSource{
                     } else {
                         Log.e(TAG, "packageEdges failed: " + edge);
                     }
+                } else {
+                    Log.e(TAG, node + " doesn't have edges");
                 }
             }
             // commit node
@@ -406,6 +413,27 @@ public class DxfDataSource extends FileDataSource implements RouterDataSource{
     @Override
     public Wnode getWnode(GPoint gPoint) {
         return aRouterDataSource.getWnode(gPoint);
+    }
+
+    @Override
+    @NonNull
+    public GPoint[] getNearestPoint(@NonNull GPoint src) {
+        Floor[] floors = getFloors(src.z);
+        if (floors.length == 0 || !floors[0].getBounds().contains(src)) return new GPoint[0];
+        GPoint[] gPoints = aRouterDataSource.getNearestPoint(src);
+        if (gPoints.length == 0) {
+            // find nearest node
+            List<Node> zNodes = super.nodes.get(src.z);
+            if (zNodes != null) {
+                for (Node node : zNodes) {
+                    //TODO May multi nodes contains a same src
+                    if (node.contains(src)) {
+                        return new GPoint[]{node.getXyz()};
+                    }
+                }
+            }
+        }
+        return gPoints;
     }
 
     class DxfUnit {

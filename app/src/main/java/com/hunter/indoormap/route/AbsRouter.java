@@ -19,19 +19,19 @@ public abstract class AbsRouter implements Router {
 
     @Override
     public Road[] route(final GPoint start, final GPoint end, final GPoint[] pass) {
-        if (start == null || end == null) return null;
+        if (start == null || end == null) return new Road[0];
         if (start.equals(end)) {
-            return null;
+            return new Road[]{new Road(new GPoint[]{start})};
         }
         Wnode startWnode = routerDataSource.getWnode(start);
         Wnode endWnode = routerDataSource.getWnode(end);
         if (startWnode == null) {
             Log.e(TAG, "not found start=" + start + " in RouterDataSource=" + routerDataSource);
-            return null;
+            return new Road[0];
         }
         if (endWnode == null) {
             Log.e(TAG, "not found end=" + end + " in RouterDataSource=" + routerDataSource);
-            return null;
+            return new Road[0];
         }
         return route(startWnode, endWnode);
     }

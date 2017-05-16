@@ -1,5 +1,8 @@
 package com.hunter.indoormap.route;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.hunter.indoormap.beans.GPoint;
 
 /**
@@ -8,5 +11,6 @@ import com.hunter.indoormap.beans.GPoint;
 
 public interface Router {
 
-    Road[] route(final GPoint start, final GPoint end, final GPoint[] pass);
+    @NonNull
+    Road[] route(final GPoint start, final GPoint end, @Nullable final GPoint[] pass);
 }

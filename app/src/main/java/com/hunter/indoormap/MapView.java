@@ -57,7 +57,7 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
     private float scale;
     private float rotate;
 
-    private boolean rotatable;
+    private boolean rotatable = true;
 
     private Matrix matrix;
     private Matrix invertMatrix;
@@ -177,7 +177,7 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
         if (mDataSource != null) {
             this.mDataSource = mDataSource;
             Floor[] floors = mDataSource.getFloors(null);
-            if (floors != null && floors.length > 0) {
+            if (floors.length != 0) {
                 setLevel(floors[0].getZ());
             }
         } else {
@@ -207,7 +207,7 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
 
     public boolean setLevel(int level) {
         Floor[] floors = getDataSource().getFloors(level);
-        if (floors != null && floors.length > 0) {
+        if (floors.length != 0) {
             if (this.floor != floors[0]) {
                 this.floor = floors[0];
                 matrix = new Matrix();
@@ -244,10 +244,12 @@ public class MapView extends RelativeLayout implements MultiTouchController.Mult
         return new Rect(rectF);
     }
 
+    private final Matrix newMatrix = new Matrix();
+
     @Override
     protected void dispatchDraw(final Canvas c) {
 
-        if (floor != null && new Matrix().equals(matrix)) {
+        if (floor != null && newMatrix.equals(matrix)) {
             Rect fBounds = floor.getBounds();
             Log.i(TAG, "fBounds: " + fBounds);
             scale = getWidth()/fBounds.width();

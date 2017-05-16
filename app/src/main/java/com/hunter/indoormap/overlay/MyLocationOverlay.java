@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.util.Log;
+import android.view.MotionEvent;
 
 import com.hunter.indoormap.IMyLocationController;
 import com.hunter.indoormap.MapView;
@@ -20,6 +22,7 @@ import com.hunter.indoormap.util.Observer;
  */
 
 public class MyLocationOverlay extends Overlay implements IMyLocationController{
+    private static final String TAG = MyLocationOverlay.class.getSimpleName();
     private static final int WIDTH = 27;
     GPoint myLocation;
     MapView mapView;
@@ -59,6 +62,7 @@ public class MyLocationOverlay extends Overlay implements IMyLocationController{
     }
 
     public void setMyLocation(GPoint myLocation) {
+        Log.i(TAG, "myLocation: " + myLocation);
         this.myLocation = myLocation;
         if (mapView.getLevel() != myLocation.z || !mapView.getMapRect().contains(myLocation.x, myLocation.y)) {
             mapView.setMapCenter(myLocation);
@@ -77,4 +81,14 @@ public class MyLocationOverlay extends Overlay implements IMyLocationController{
     public void removeOnMyLocationChangedListener(OnMyLocationChangedListener listener) {
         observable.deleteObserver(listener);
     }
+
+    @Override
+    public boolean onLongPress(MotionEvent e, MapView mapView) {
+        // For Test
+        Point point = new Point(e.getX(), e.getY());
+        point = MatrixUtils.applyMatrix(point, mapView.getInvertMatrix());
+        setMyLocation(new GPoint(point.x, point.y , mapView.getLevel()));
+        return true;
+    }
+
 }

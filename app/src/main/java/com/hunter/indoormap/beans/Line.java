@@ -6,7 +6,7 @@ import com.hunter.indoormap.MathUtils;
  * Created by hunter on 5/8/17.
  */
 
-public class Line<P extends GPoint> {
+public class Line<P extends GPoint> implements Shape<P>{
     private P start;
     private P end;
 
@@ -51,6 +51,7 @@ public class Line<P extends GPoint> {
         maxMin.minZ = start.z < end.z ? start.z : end.z;
     }
 
+    @Override
     public boolean contains(GPoint e) {
         if (e == null) {
             throw new NullPointerException();
@@ -82,6 +83,14 @@ public class Line<P extends GPoint> {
                 "start=" + start +
                 ", end=" + end +
                 '}';
+    }
+
+    @Override
+    public Rect getBounds() {
+        if (maxMin == null) {
+            createMaxMin();
+        }
+        return new Rect(maxMin.minX, maxMin.minY, maxMin.maxX, maxMin.maxY);
     }
 
     class MaxMin {

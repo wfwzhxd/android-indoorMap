@@ -34,12 +34,6 @@ public class WayOverlay extends Overlay {
     @Override
     public void draw(Canvas c, MapView mv) {
         List<Way> ways = mv.getDataSource().getWays(mv.getMapRect().enlarge(1.1f), mv.getLevel());
-        Log.d(TAG, "ways is null");
-        if (ways == null) {
-            Log.d(TAG, "ways is null");
-            return;
-        }
-        Log.d(TAG, ways.toString());
         Matrix matrix = mv.getMapMatrix();
         Edges edges;
         Point[] points;

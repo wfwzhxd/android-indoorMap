@@ -72,6 +72,7 @@ public abstract class FileDataSource implements DataSource {
 
     private Floor generateFloors(Integer level) {
         if (!ways.containsKey(level) && !nodes.containsKey(level)) {
+            //unreachable
             return null;
         }
         Rect bounds = new Rect(Float.MAX_VALUE, Float.MAX_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
@@ -106,7 +107,7 @@ public abstract class FileDataSource implements DataSource {
         if (index>-1 && index<floors.length) {
             return new Floor[]{floors[index]};
         }
-        return null;
+        return new Floor[0];
     }
 
     @Override
@@ -125,7 +126,7 @@ public abstract class FileDataSource implements DataSource {
     public List<MObj> findMObjs(String name, Rect region, Integer floor) {
         checkDataLoaded();
         //TODO implement
-        return null;
+        return Collections.emptyList();
     }
 
     private class MobjGraper<T extends MObj> {

@@ -39,10 +39,6 @@ public class NodeOverlay extends Overlay {
     @Override
     public void draw(Canvas c, MapView mv) {
         List<Node> nodes = mv.getDataSource().getNodes(mv.getMapRect().enlarge(1.1f), mv.getLevel());
-        if (nodes == null) {
-            Log.d(TAG, "nodes is null");
-            return;
-        }
         Matrix matrix = mv.getMapMatrix();
         for (Node node : nodes) {
             Edges edges = node.getEdges();

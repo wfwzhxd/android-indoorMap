@@ -53,20 +53,18 @@ public class Way extends MObj {
 
         public WayLine(WayNode start, WayNode end) {
             super(start, end);
-            setStart(start);
-            setEnd(end);
         }
 
         @Override
         public void setStart(WayNode start) {
             super.setStart(start);
-            calculateEdges();
+            edges = null;
         }
 
         @Override
         public void setEnd(WayNode end) {
             super.setEnd(end);
-            calculateEdges();
+            edges = null;
         }
 
         public Edges getEdges() {
@@ -74,10 +72,6 @@ public class Way extends MObj {
                 calculateEdges();
             }
             return edges;
-        }
-
-        public boolean contains(Point p) {
-            return contains(new GPoint(p.x, p.y));
         }
 
         // just consider 2D
@@ -92,11 +86,11 @@ public class Way extends MObj {
         private void calculateEdges() {
             WayNode start = getStart();
             WayNode end = getEnd();
-            if (start.wide <= 0 || end.wide <= 0) {
+            if (start.wide <= 0 && end.wide <= 0) {
                 return;
             }
             float degree = CoordinateUtils.calDegree(start, end);
-            android.util.Log.d("Way", start + " " + end + " degree " + degree);
+//            android.util.Log.d("Way", start + " " + end + " degree " + degree);
             Point endPoint = CoordinateUtils.rotateAtPoint(start, end, -degree, false);
             endPoint = CoordinateUtils.relativeCoord(start, endPoint);
             float startHalfWidth = start.wide/2;
@@ -109,10 +103,17 @@ public class Way extends MObj {
             Point[] points = new Point[]{spt, spb, epb, ept};
             points = CoordinateUtils.absoluteCoord(start, CoordinateUtils.rotateAtPoint(origin, points, degree, true));
             edges = new Edges(points);
-            Log.o(edges);
+//            Log.o(edges);
             return;
         }
 
+        @Override
+        public Rect getBounds() {
+            if (edges == null) {
+                calculateEdges();
+            }
+            return edges == null ? super.getBounds() : edges.getBounds();
+        }
     }
 
     private WayLine[] wayLines;
@@ -142,7 +143,7 @@ public class Way extends MObj {
     @Override
     protected boolean ifContains(Point point) {
         for (int i=0; i < wayLines.length; i++) {
-            if (wayLines[i].contains(point)) {
+            if (wayLines[i].contains(new GPoint(point))) {
                 return true;
             }
         }

@@ -1,40 +1,10 @@
 package com.hunter.indoormap.beans;
 
-/*
- * Copyright (C) 2006 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 import android.graphics.RectF;
-import android.os.Parcel;
-import android.os.Parcelable;
 
 import java.io.PrintWriter;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-/**
- * Rect holds four integer coordinates for a rectangle. The rectangle is
- * represented by the coordinates of its 4 edges (left, top, right bottom).
- * These fields can be accessed directly. Use width() and height() to retrieve
- * the rectangle's width and height. Note: most methods do not check to see that
- * the coordinates are sorted correctly (i.e. left <= right and top <= bottom).
- * <p>
- * Note that the right and bottom coordinates are exclusive. This means a Rect
- * being drawn untransformed onto a {@link android.graphics.Canvas} will draw
- * into the column and row described by its left and top coordinates, but not
- * those of its bottom and right.
- */
+
+
 public final class Rect {
     public int left;
     public int top;
@@ -47,21 +17,6 @@ public final class Rect {
 
     public Rect(android.graphics.Rect rect) {
         this(rect.left, rect.top, rect.right, rect.bottom);
-    }
-
-    /**
-     * A helper class for flattened rectange pattern recognition. A separate
-     * class to avoid an initialization dependency on a regular expression
-     * causing Rect to not be initializable with an ahead-of-time compilation
-     * scheme.
-     */
-    private static final class UnflattenHelper {
-        private static final Pattern FLATTENED_PATTERN = Pattern.compile(
-                "(-?\\d+) (-?\\d+) (-?\\d+) (-?\\d+)");
-
-        static Matcher getMatcher(String str) {
-            return FLATTENED_PATTERN.matcher(str);
-        }
     }
 
     /**
@@ -157,43 +112,6 @@ public final class Rect {
     }
 
     /**
-     * Return a string representation of the rectangle in a well-defined format.
-     *
-     * <p>You can later recover the Rect from this string through
-     * {@link #unflattenFromString(String)}.
-     *
-     * @return Returns a new String of the form "left top right bottom"
-     */
-    public String flattenToString() {
-        StringBuilder sb = new StringBuilder(32);
-        // WARNING: Do not change the format of this string, it must be
-        // preserved because Rects are saved in this flattened format.
-        sb.append(left);
-        sb.append(' ');
-        sb.append(top);
-        sb.append(' ');
-        sb.append(right);
-        sb.append(' ');
-        sb.append(bottom);
-        return sb.toString();
-    }
-
-    /**
-     * Returns a Rect from a string of the form returned by {@link #flattenToString},
-     * or null if the string is not of that form.
-     */
-    public static android.graphics.Rect unflattenFromString(String str) {
-        Matcher matcher = UnflattenHelper.getMatcher(str);
-        if (!matcher.matches()) {
-            return null;
-        }
-        return new android.graphics.Rect(Integer.parseInt(matcher.group(1)),
-                Integer.parseInt(matcher.group(2)),
-                Integer.parseInt(matcher.group(3)),
-                Integer.parseInt(matcher.group(4)));
-    }
-
-    /**
      * Print short representation to given writer.
      * @hide
      */
@@ -204,10 +122,10 @@ public final class Rect {
     }
 
     /**
-     * Returns true if the rectangle is empty (left >= right or top >= bottom)
+     * Returns true if the rectangle is empty (left > right or top > bottom)
      */
     public final boolean isEmpty() {
-        return left >= right || top >= bottom;
+        return left > right || top > bottom;
     }
 
     /**
@@ -328,194 +246,22 @@ public final class Rect {
         top = newTop;
     }
 
-    /**
-     * Inset the rectangle by (dx,dy). If dx is positive, then the sides are
-     * moved inwards, making the rectangle narrower. If dx is negative, then the
-     * sides are moved outwards, making the rectangle wider. The same holds true
-     * for dy and the top and bottom.
-     *
-     * @param dx The amount to add(subtract) from the rectangle's left(right)
-     * @param dy The amount to add(subtract) from the rectangle's top(bottom)
-     */
-    public void inset(int dx, int dy) {
-        left += dx;
-        top += dy;
-        right -= dx;
-        bottom -= dy;
-    }
-
-    /**
-     * Insets the rectangle on all sides specified by the dimensions of the {@code insets}
-     * rectangle.
-     * @hide
-     * @param insets The rectangle specifying the insets on all side.
-     */
-    public void inset(android.graphics.Rect insets) {
-        left += insets.left;
-        top += insets.top;
-        right -= insets.right;
-        bottom -= insets.bottom;
-    }
-
-    /**
-     * Insets the rectangle on all sides specified by the insets.
-     * @hide
-     * @param left The amount to add from the rectangle's left
-     * @param top The amount to add from the rectangle's top
-     * @param right The amount to subtract from the rectangle's right
-     * @param bottom The amount to subtract from the rectangle's bottom
-     */
-    public void inset(int left, int top, int right, int bottom) {
-        this.left += left;
-        this.top += top;
-        this.right -= right;
-        this.bottom -= bottom;
-    }
-
-    /**
-     * Returns true if (x,y) is inside the rectangle. The left and top are
-     * considered to be inside, while the right and bottom are not. This means
-     * that for a x,y to be contained: left <= x < right and top <= y < bottom.
-     * An empty rectangle never contains any point.
-     *
-     * @param x The X coordinate of the point being tested for containment
-     * @param y The Y coordinate of the point being tested for containment
-     * @return true iff (x,y) are contained by the rectangle, where containment
-     *              means left <= x < right and top <= y < bottom
-     */
     public boolean contains(int x, int y) {
-        return left < right && top < bottom  // check for empty first
-                && x >= left && x < right && y >= top && y < bottom;
+        return left <= right && top <= bottom  // check for empty first
+                && x >= left && x <= right && y >= top && y <= bottom;
     }
 
     public boolean contains(float x, float y) {
         return contains((int) x, (int)y);
     }
 
-    /**
-     * Returns true iff the 4 specified sides of a rectangle are inside or equal
-     * to this rectangle. i.e. is this rectangle a superset of the specified
-     * rectangle. An empty rectangle never contains another rectangle.
-     *
-     * @param left The left side of the rectangle being tested for containment
-     * @param top The top of the rectangle being tested for containment
-     * @param right The right side of the rectangle being tested for containment
-     * @param bottom The bottom of the rectangle being tested for containment
-     * @return true iff the the 4 specified sides of a rectangle are inside or
-     *              equal to this rectangle
-     */
-    public boolean contains(int left, int top, int right, int bottom) {
-        // check for empty first
-        return this.left < this.right && this.top < this.bottom
-                // now check for containment
-                && this.left <= left && this.top <= top
-                && this.right >= right && this.bottom >= bottom;
-    }
-
-    /**
-     * Returns true iff the specified rectangle r is inside or equal to this
-     * rectangle. An empty rectangle never contains another rectangle.
-     *
-     * @param r The rectangle being tested for containment.
-     * @return true iff the specified rectangle r is inside or equal to this
-     *              rectangle
-     */
-    public boolean contains(android.graphics.Rect r) {
-        // check for empty first
-        return this.left < this.right && this.top < this.bottom
-                // now check for containment
-                && left <= r.left && top <= r.top && right >= r.right && bottom >= r.bottom;
-    }
-
-    /**
-     * If the rectangle specified by left,top,right,bottom intersects this
-     * rectangle, return true and set this rectangle to that intersection,
-     * otherwise return false and do not change this rectangle. No check is
-     * performed to see if either rectangle is empty. Note: To just test for
-     * intersection, use {@link #intersects(android.graphics.Rect, android.graphics.Rect)}.
-     *
-     * @param left The left side of the rectangle being intersected with this
-     *             rectangle
-     * @param top The top of the rectangle being intersected with this rectangle
-     * @param right The right side of the rectangle being intersected with this
-     *              rectangle.
-     * @param bottom The bottom of the rectangle being intersected with this
-     *             rectangle.
-     * @return true if the specified rectangle and this rectangle intersect
-     *              (and this rectangle is then set to that intersection) else
-     *              return false and do not change this rectangle.
-     */
-    public boolean intersect(int left, int top, int right, int bottom) {
-        if (this.left < right && left < this.right && this.top < bottom && top < this.bottom) {
-            if (this.left < left) this.left = left;
-            if (this.top < top) this.top = top;
-            if (this.right > right) this.right = right;
-            if (this.bottom > bottom) this.bottom = bottom;
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * If the specified rectangle intersects this rectangle, return true and set
-     * this rectangle to that intersection, otherwise return false and do not
-     * change this rectangle. No check is performed to see if either rectangle
-     * is empty. To just test for intersection, use intersects()
-     *
-     * @param r The rectangle being intersected with this rectangle.
-     * @return true if the specified rectangle and this rectangle intersect
-     *              (and this rectangle is then set to that intersection) else
-     *              return false and do not change this rectangle.
-     */
-    public boolean intersect(android.graphics.Rect r) {
-        return intersect(r.left, r.top, r.right, r.bottom);
-    }
-
-    /**
-     * If rectangles a and b intersect, return true and set this rectangle to
-     * that intersection, otherwise return false and do not change this
-     * rectangle. No check is performed to see if either rectangle is empty.
-     * To just test for intersection, use intersects()
-     *
-     * @param a The first rectangle being intersected with
-     * @param b The second rectangle being intersected with
-     * @return true iff the two specified rectangles intersect. If they do, set
-     *              this rectangle to that intersection. If they do not, return
-     *              false and do not change this rectangle.
-     */
-    public boolean setIntersect(android.graphics.Rect a, android.graphics.Rect b) {
-        if (a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom) {
-            left = Math.max(a.left, b.left);
-            top = Math.max(a.top, b.top);
-            right = Math.min(a.right, b.right);
-            bottom = Math.min(a.bottom, b.bottom);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Returns true if this rectangle intersects the specified rectangle.
-     * In no event is this rectangle modified. No check is performed to see
-     * if either rectangle is empty. To record the intersection, use intersect()
-     * or setIntersect().
-     *
-     * @param left The left side of the rectangle being tested for intersection
-     * @param top The top of the rectangle being tested for intersection
-     * @param right The right side of the rectangle being tested for
-     *              intersection
-     * @param bottom The bottom of the rectangle being tested for intersection
-     * @return true iff the specified rectangle intersects this rectangle. In
-     *              no event is this rectangle modified.
-     */
-    public boolean intersects(int left, int top, int right, int bottom) {
-        return this.left < right && left < this.right && this.top < bottom && top < this.bottom;
+    public boolean contains(Point point) {
+        return contains(point.x, point.y);
     }
 
     /**
      * Returns true iff the two specified rectangles intersect. In no event are
-     * either of the rectangles modified. To record the intersection,
-     * use {@link #intersect(android.graphics.Rect)} or {@link #setIntersect(android.graphics.Rect, android.graphics.Rect)}.
+     * either of the rectangles modified.
      *
      * @param a The first rectangle being tested for intersection
      * @param b The second rectangle being tested for intersection
@@ -523,7 +269,7 @@ public final class Rect {
      *              either of the rectangles modified.
      */
     public static boolean intersects(Rect a, Rect b) {
-        return a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+        return a.left <= b.right && b.left <= a.right && a.top <= b.bottom && b.top <= a.bottom;
     }
 
     /**
@@ -549,37 +295,6 @@ public final class Rect {
                 this.right = right;
                 this.bottom = bottom;
             }
-        }
-    }
-
-    /**
-     * Update this Rect to enclose itself and the specified rectangle. If the
-     * specified rectangle is empty, nothing is done. If this rectangle is empty
-     * it is set to the specified rectangle.
-     *
-     * @param r The rectangle being unioned with this rectangle
-     */
-    public void union(android.graphics.Rect r) {
-        union(r.left, r.top, r.right, r.bottom);
-    }
-
-    /**
-     * Update this Rect to enclose itself and the [x,y] coordinate. There is no
-     * check to see that this rectangle is non-empty.
-     *
-     * @param x The x coordinate of the point to add to the rectangle
-     * @param y The y coordinate of the point to add to the rectangle
-     */
-    public void union(int x, int y) {
-        if (x < left) {
-            left = x;
-        } else if (x > right) {
-            right = x;
-        }
-        if (y < top) {
-            top = y;
-        } else if (y > bottom) {
-            bottom = y;
         }
     }
 

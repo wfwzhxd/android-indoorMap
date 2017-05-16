@@ -2,6 +2,7 @@ package com.hunter.indoormap;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,21 +23,13 @@ public class StartActivity extends AppCompatActivity {
     private static final String MAPFILE_SUFFIX = ".dxf";
     private static final String ASSETS_URI_PRIFIX = "//android_asset/";
 
-    private List<String> mapList;
+    private ListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
-        mapList = getMapList();
-        ListView listView = (ListView) findViewById(R.id.list);
-        listView.setAdapter(new ArrayAdapter<>(this, R.layout.simple_list_item_1, mapList));
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                viewMap(Uri.fromFile(new File(ASSETS_URI_PRIFIX + MAPFILE_DIR, mapList.get(position))));
-            }
-        });
+        listView = (ListView) findViewById(R.id.list);
         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -45,6 +38,23 @@ public class StartActivity extends AppCompatActivity {
                 startActivityForResult(intent, 0);
             }
         });
+        new AsyncTask<Void, Void, List<String>>() {
+            @Override
+            protected List<String> doInBackground(Void... params) {
+                return getMapList();
+            }
+
+            @Override
+            protected void onPostExecute(final List<String> list) {
+                listView.setAdapter(new ArrayAdapter<>(StartActivity.this, R.layout.simple_list_item_1, list));
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        viewMap(Uri.fromFile(new File(ASSETS_URI_PRIFIX + MAPFILE_DIR, list.get(position))));
+                    }
+                });
+            }
+        }.execute();
     }
 
     private List<String> getMapList() {

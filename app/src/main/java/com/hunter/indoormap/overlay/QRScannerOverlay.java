@@ -97,7 +97,10 @@ public class QRScannerOverlay extends Overlay implements ZBarScannerView.ResultH
     @Override
     public boolean onLongPress(MotionEvent e, MapView mapView) {
         if (new com.hunter.indoormap.beans.Rect(rect).contains(e.getX(), e.getY())) {
-            mapView.setMapCenter(mapView.getMyLocationController().getMyLocation());
+            GPoint myLocation;
+            if (mapView.getMyLocationController() != null && (myLocation = mapView.getMyLocationController().getMyLocation()) != null) {
+                mapView.setMapCenter(myLocation);
+            }
             return true;
         }
         return super.onLongPress(e, mapView);
