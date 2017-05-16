@@ -29,6 +29,7 @@ public class NodeOverlay extends Overlay {
         fillPaint = new Paint();
         fillPaint.setStyle(Paint.Style.FILL);
         fillPaint.setColor(Color.parseColor("#00f6ff"));
+        fillPaint.setAntiAlias(true);
         strokePaint = new Paint();
         strokePaint.setStrokeWidth(2.0f);
         strokePaint.setStyle(Paint.Style.STROKE);

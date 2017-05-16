@@ -22,7 +22,7 @@ public class DxfDataSourceTest {
 
     @Test
     public void parseDxfTest() {
-        DxfDataSource dxfDataSource = new DxfDataSource(new File("/home/hunter/hospital.dxf"));
+        DxfDataSource dxfDataSource = new DxfDataSource(new File("/home/hunter/SuShe_4.dxf"));
         dxfDataSource.loadData();
         Log.o(dxfDataSource.getNodes(null, 0));
         Log.o(dxfDataSource.getWays(null, 0));

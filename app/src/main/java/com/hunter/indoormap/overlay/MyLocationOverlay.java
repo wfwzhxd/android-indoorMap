@@ -62,6 +62,7 @@ public class MyLocationOverlay extends Overlay implements IMyLocationController{
     }
 
     public void setMyLocation(GPoint myLocation) {
+        if (myLocation == null) return;
         Log.i(TAG, "myLocation: " + myLocation);
         this.myLocation = myLocation;
         if (mapView.getLevel() != myLocation.z || !mapView.getMapRect().contains(myLocation.x, myLocation.y)) {

@@ -24,11 +24,13 @@ public class WayOverlay extends Overlay {
     private static final String TAG = WayOverlay.class.getSimpleName();
 
     Paint fillPaint;
+    boolean drawEndPointCircle = true;
 
     public WayOverlay() {
         fillPaint = new Paint();
         fillPaint.setStyle(Paint.Style.FILL);
         fillPaint.setColor(Color.parseColor("#a29e89"));
+        fillPaint.setAntiAlias(true);
     }
 
     @Override
@@ -53,7 +55,18 @@ public class WayOverlay extends Overlay {
                     edge.lineTo(point.x, point.y);
                 }
                 c.drawPath(edge, fillPaint);
+                // draw circle at start and end
+                if (drawEndPointCircle) {
+                    Point point = MatrixUtils.applyMatrix(wayLine.getStart(), matrix);
+                    c.drawCircle(point.x, point.y, wayLine.getStart().getWide()*mv.getScale()/2, fillPaint);
+                    point = MatrixUtils.applyMatrix(wayLine.getEnd(), matrix);
+                    c.drawCircle(point.x, point.y, wayLine.getEnd().getWide()*mv.getScale()/2, fillPaint);
+                }
             }
         }
+    }
+
+    public void setDrawEndPointCircle(boolean drawEndPointCircle) {
+        this.drawEndPointCircle = drawEndPointCircle;
     }
 }

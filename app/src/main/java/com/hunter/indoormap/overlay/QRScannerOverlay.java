@@ -77,7 +77,7 @@ public class QRScannerOverlay extends Overlay implements ZBarScannerView.ResultH
         String[] ps = line.split(",");
         GPoint p = null;
         if (ps.length == 3) {
-            p = new GPoint(Integer.parseInt(ps[0]), Integer.parseInt(ps[1]), Integer.parseInt(ps[2]));
+            p = new GPoint(Float.parseFloat(ps[0]), Float.parseFloat(ps[1]), Integer.parseInt(ps[2]));
         }
         else {
             Log.e(TAG, "Error formate gpoint{ " + line + " }");

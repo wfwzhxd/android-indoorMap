@@ -44,6 +44,7 @@ public class NameOverlay extends Overlay {
     public NameOverlay(Context context) {
         fontScale = context.getResources().getDisplayMetrics().scaledDensity;
         smallestPaint = new TextPaint();
+        smallestPaint.setAntiAlias(true);
         smallestPaint.setColor(Color.BLACK);
         biggestPaint = new TextPaint(smallestPaint);
         setSmallestFontSize(DEFAULT_SMALLEST_FONTSIZE);

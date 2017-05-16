@@ -375,7 +375,7 @@ public class DxfDataSource extends FileDataSource implements ArbitraryRouterData
         } else {    //Edges
             addWayLine2Edge(getEdges(pointId), wayLine);
         }
-//        Log.o("parseLine " + wayLine);
+        Log.o("parseLine " + wayLine);
     }
 
     private boolean isEnd() {

@@ -77,12 +77,18 @@ public abstract class FileDataSource implements DataSource {
         }
         Rect bounds = new Rect(Float.MAX_VALUE, Float.MAX_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
         // nodes
-        for (Node node : nodes.get(level)) {
-            bounds = Rect.mixMax(bounds, node.getBounds());
+        List<Node> horNodes = nodes.get(level);
+        if (horNodes != null) {
+            for (Node node : horNodes) {
+                bounds = Rect.mixMax(bounds, node.getBounds());
+            }
         }
         // ways
-        for (Way way : ways.get(level)) {
-            bounds = Rect.mixMax(bounds, way.getBounds());
+        List<Way> horWays = ways.get(level);
+        if (horNodes != null) {
+            for (Way way : horWays) {
+                bounds = Rect.mixMax(bounds, way.getBounds());
+            }
         }
         return new Floor(level, bounds);
     }

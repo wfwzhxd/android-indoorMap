@@ -82,6 +82,7 @@ public class RouterOverlay extends Overlay implements Router{
         this.mapView = mapView;
         paint = new Paint();
         paint.setColor(Color.RED);
+        paint.setAntiAlias(true);
         final float density = mapView.getResources().getDisplayMetrics().density;
         int width = (int) (WIDTH * density);
         rect = new com.hunter.indoormap.beans.Rect(0, 0, width, width);
