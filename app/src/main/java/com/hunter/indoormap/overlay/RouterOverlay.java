@@ -222,11 +222,12 @@ public class RouterOverlay extends Overlay implements Router{
         int halfWidth = width>>1;
         android.graphics.Rect rect = new Rect(-halfWidth, -halfWidth, halfWidth, halfWidth);
         rect.offset((int)(startPoint.x + halfWidth), (int)(startPoint.y));
-        while (rect.right < endPoint.x) {
-            c.drawBitmap(roadArrowBmp, null, rect, paint);
-            rect.offset(width, 0);
+        if (rect.width() > 0) {
+            while (rect.right < endPoint.x) {
+                c.drawBitmap(roadArrowBmp, null, rect, paint);
+                rect.offset(width, 0);
+            }
         }
-
         rect.set(rect.left, rect.top, (int)endPoint.x, rect.bottom);
         if (rect.width() > halfWidth) {
             c.drawBitmap(roadArrowBmp, null, rect, paint);
