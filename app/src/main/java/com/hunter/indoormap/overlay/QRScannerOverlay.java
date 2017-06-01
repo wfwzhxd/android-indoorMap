@@ -6,21 +6,24 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.Toast;
 
+import com.google.zxing.Result;
 import com.hunter.indoormap.MapView;
 import com.hunter.indoormap.R;
 import com.hunter.indoormap.beans.GPoint;
 
-import me.dm7.barcodescanner.zbar.ZBarScannerView;
+import me.dm7.barcodescanner.zxing.ZXingScannerView;
+
 
 /**
  * Created by hunter on 4/23/17.
  */
 
-public class QRScannerOverlay extends Overlay implements ZBarScannerView.ResultHandler{
+public class QRScannerOverlay extends Overlay implements ZXingScannerView.ResultHandler{
     private static final String TAG = QRScannerOverlay.class.getSimpleName();
 
     MapView mapView;
@@ -58,9 +61,9 @@ public class QRScannerOverlay extends Overlay implements ZBarScannerView.ResultH
     }
 
     @Override
-    public void handleResult(me.dm7.barcodescanner.zbar.Result result) {
+    public void handleResult(Result result) {
         try {
-            GPoint location = parseGPoint(result.getContents());
+            GPoint location = parseGPoint(result.getText());
             if (mapView.getDataSource().getFloors(location.z) != null) {
                 scannerDialogFragment.dismiss();
                 mapView.getMyLocationController().setMyLocation(location);
@@ -73,7 +76,7 @@ public class QRScannerOverlay extends Overlay implements ZBarScannerView.ResultH
     }
 
     private GPoint parseGPoint(String line) {
-        if (line == null) return null;
+        if (TextUtils.isEmpty(line)) return null;
         String[] ps = line.split(",");
         GPoint p = null;
         if (ps.length == 3) {

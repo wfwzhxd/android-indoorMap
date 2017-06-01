@@ -1,5 +1,0 @@
-# node*_?.txt  (? is floor)
-# id | name |shown| x,y,z |shapeId| degree
-# int|string| 0/1 | int[] |  int  | float
-4012|008|1|3,6,2|1001|0
-4013|009|1|10,18,2|1002|0

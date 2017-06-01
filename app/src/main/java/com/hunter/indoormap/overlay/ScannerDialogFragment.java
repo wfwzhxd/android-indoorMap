@@ -12,19 +12,21 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import me.dm7.barcodescanner.zbar.ZBarScannerView;
+import com.google.zxing.Result;
+
+import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
 import static android.content.pm.PackageManager.PERMISSION_DENIED;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
-public class ScannerDialogFragment extends DialogFragment implements ZBarScannerView.ResultHandler {
+public class ScannerDialogFragment extends DialogFragment implements ZXingScannerView.ResultHandler {
     private static String TAG = ScannerDialogFragment.class.getSimpleName();
-    private ZBarScannerView mScannerView;
-    ZBarScannerView.ResultHandler resultHandler;
+    private ZXingScannerView mScannerView;
+    ZXingScannerView.ResultHandler resultHandler;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        mScannerView = new ZBarScannerView(getActivity());
+        mScannerView = new ZXingScannerView(getActivity());
         mScannerView.setAutoFocus(true);
         mScannerView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,13 +60,13 @@ public class ScannerDialogFragment extends DialogFragment implements ZBarScanner
         }
     }
 
-    public void setResultHandler(ZBarScannerView.ResultHandler resultHandler) {
+    public void setResultHandler(ZXingScannerView.ResultHandler resultHandler) {
         this.resultHandler = resultHandler;
     }
 
     @Override
-    public void handleResult(me.dm7.barcodescanner.zbar.Result rawResult) {
-        Log.i(TAG, "Contents = " + rawResult.getContents() +
+    public void handleResult(Result rawResult) {
+        Log.i(TAG, "Contents = " + rawResult.getText() +
                 ", Format = " + rawResult.getBarcodeFormat().toString());
         // Note:
         // * Wait 2 seconds to resume the preview.
